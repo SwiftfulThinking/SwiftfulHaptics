@@ -4,7 +4,7 @@ Custom haptics for Swift applications.
 
 Sample project: https://github.com/SwiftfulThinking/SwiftfulHapticsExample
 
-### Setup
+## Setup
 
 ```swift
 import SwiftfulHaptics
@@ -50,7 +50,7 @@ Optionally call tearDown to remove the engine from memory. If you do this, you w
 }
 ```
 
-Additional methods:
+All methods:
 
 ```swift
 func prepare(option: HapticOption) async throws
@@ -64,8 +64,45 @@ func tearDown(options: [HapticOption]) async throws
 func tearDownAll() async throws
 ```
 
+## Haptics
 
+```swift
 
+// UISelectionFeedbackGenerator
+.selection
+
+// UIImpactFeedbackGenerator
+.soft
+.rigid
+.light
+.medium
+.heavy
+    
+// UINotificationFeedbackGenerator
+.success
+.error
+.warning
+        
+// CoreHaptics: CHHapticEngine
+.boing()
+.boing(duration: 0.25)
+.drums
+.heartBeats()
+.heartBeats(count: 3, durationPerBeat: 0.255)
+.inflate()
+.inflate(duration: 1.7)
+.oscillate()
+.oscillate(duration: 3.0)
+    
+// Developer can inject custom pattern in to CoreHaptics
+.custom(events: [CHHapticEvent], parameters: [CHHapticDynamicParameter])
+.customCurve(events: [CHHapticEvent], parameterCurves: [CHHapticParameterCurve])
+
+```
+
+## Contribute
+
+Open a PR to add a custom pattern as an option within the framework.
 
 
 
