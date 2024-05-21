@@ -90,7 +90,7 @@ struct CustomHapticPatterns {
         var events: [CHHapticEvent] = []
         
         for x in 0..<count {
-            let pauseBetweenBeats: Double = (durationPerBeat * 3.8) * Double(x)
+            let pauseBetweenBeats: Double = (durationPerBeat * 3) * Double(x)
             let beatTimeSoFar: Double = durationPerBeat * Double(x)
             let baseline = beatTimeSoFar + pauseBetweenBeats
             
