@@ -27,6 +27,13 @@ extension EnvironmentValues {
 
 You must prepare a haptic engine before being able to play the haptic. 
 Call prepare any time earlier in the lifecycle - on app launch, on screen appear, on cell appear, etc.
+
+```swift
+.task {
+     try? await haptics.prepare(option: .medium)
+}
+```
+
 Then call play to trigger the haptic.
 
 ```swift
@@ -34,9 +41,6 @@ Button("Click me) {
      Task {
           try? await haptics.play(option: .medium)
      }
-}
-.task {
-     try? await haptics.prepare(option: .medium)
 }
 ```
 
