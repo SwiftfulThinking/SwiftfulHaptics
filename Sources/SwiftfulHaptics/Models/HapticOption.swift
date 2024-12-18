@@ -6,11 +6,7 @@
 //
 
 import Foundation
-import CoreHaptics
-
-enum HapticError: Error {
-    case engineNotPrepared, patternNotFound
-}
+@preconcurrency import CoreHaptics
 
 public enum HapticOption: CaseIterable, Sendable {
     
@@ -57,7 +53,7 @@ public enum HapticOption: CaseIterable, Sendable {
         case .customCurve(events: let events, parameterCurves: let parameterCurves):
             return try CHHapticPattern(events: events, parameterCurves: parameterCurves)
         default:
-            throw HapticError.patternNotFound
+            throw URLError(.unknown)
         }
     }
     

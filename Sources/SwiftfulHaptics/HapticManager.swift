@@ -3,6 +3,7 @@ import CoreHaptics
 import UIKit
 
 public final actor HapticManager {
+    private let logger: HapticLogger?
     
     @MainActor private var notificationGenerator: UINotificationFeedbackGenerator? = nil
     
@@ -16,39 +17,43 @@ public final actor HapticManager {
     private var customEngine: CHHapticEngine? = nil
     private var customEngineIsRunning: Bool = false
 
-    public init() {
-        
+    public init(logger: HapticLogger? = nil) {
+        self.logger = logger
     }
+    
+    // MARK: PREPARE
         
-    public func prepare(option: HapticOption) async throws {
-        try await self.setUpAndPrepareForHaptic(option: option)
+    public func prepare(option: HapticOption) async {
+        await self.setUpAndPrepareForHaptic(option: option)
     }
 
-    public func prepare(options: [HapticOption]) async throws {
-        try await withThrowingTaskGroup(of: Void.self) { group in
+    public func prepare(options: [HapticOption]) async {
+        await withTaskGroup(of: Void.self) { group in
             for option in options {
                 group.addTask {
-                    try await self.setUpAndPrepareForHaptic(option: option)
+                    await self.setUpAndPrepareForHaptic(option: option)
                 }
             }
             
-            try await group.waitForAll()
+            await group.waitForAll()
         }
     }
     
-    public func tearDown(option: HapticOption) async throws {
-        try await removeEngineFromMemory(option: option)
+    // MARK: TEAR DOWN
+    
+    public func tearDown(option: HapticOption) async {
+        await removeEngineFromMemory(option: option)
     }
 
-    public func tearDown(options: [HapticOption]) async throws {
-        try await withThrowingTaskGroup(of: Void.self) { group in
+    public func tearDown(options: [HapticOption]) async {
+        await withTaskGroup(of: Void.self) { group in
             for option in options {
                 group.addTask {
-                    try await self.tearDown(option: option)
+                    await self.tearDown(option: option)
                 }
             }
             
-            try await group.waitForAll()
+            await group.waitForAll()
         }
     }
         
@@ -56,7 +61,7 @@ public final actor HapticManager {
         try await withThrowingTaskGroup(of: Void.self) { group in
             for option in HapticOption.allCases {
                 group.addTask {
-                    try await self.tearDown(option: option)
+                    await self.tearDown(option: option)
                 }
             }
             
@@ -64,23 +69,28 @@ public final actor HapticManager {
         }
     }
     
-    public func play(option: HapticOption) async throws {
-        try await trigger(option: option)
+    // MARK: PLAY
+    
+    public func play(option: HapticOption) async {
+        await trigger(option: option)
     }
         
-    public func play(options: [HapticOption]) async throws {
-        try await withThrowingTaskGroup(of: Void.self) { group in
+    public func play(options: [HapticOption]) async {
+        await withTaskGroup(of: Void.self) { group in
             for option in options {
                 group.addTask {
-                    try await self.trigger(option: option)
+                    await self.trigger(option: option)
                 }
             }
             
-            try await group.waitForAll()
+            await group.waitForAll()
         }
     }
     
-    private func setUpAndPrepareForHaptic(option: HapticOption) async throws {
+    // MARK: PRIVATE
+    
+    // Create engine if needed, then prepare engine if needed.
+    private func setUpAndPrepareForHaptic(option: HapticOption) async {
         switch option {
         case .light:
             await MainActor.run {
@@ -132,102 +142,90 @@ public final actor HapticManager {
                 selectionGenerator?.prepare()
             }
         case .boing, .drums, .heartBeats, .inflate, .oscillate, .custom, .customCurve:
-            try await configureCoreHapticEngine()
+            if customEngine == nil {
+                await setUpAndPrepareCustomHapticEngine()
+            }
         }
     }
     
-    private func trigger(option: HapticOption) async throws {
+    private func trigger(option: HapticOption) async {
         switch option {
         case .light:
-            try await MainActor.run {
+            await MainActor.run {
+                if lightGenerator == nil {
+                    lightGenerator = UIImpactFeedbackGenerator(style: .light)
+                }
                 if let lightGenerator {
                     lightGenerator.impactOccurred()
-                } else {
-                    throw HapticError.engineNotPrepared
                 }
             }
         case .medium:
-            try await MainActor.run {
-                if let mediumGenerator {
-                    mediumGenerator.impactOccurred()
-                } else {
-                    throw HapticError.engineNotPrepared
+            await MainActor.run {
+                if mediumGenerator == nil {
+                    mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
                 }
+                mediumGenerator?.impactOccurred()
             }
         case .heavy:
-            try await MainActor.run {
-                if let heavyGenerator {
-                    heavyGenerator.impactOccurred()
-                } else {
-                    throw HapticError.engineNotPrepared
+            await MainActor.run {
+                if heavyGenerator == nil {
+                    heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
                 }
+                heavyGenerator?.impactOccurred()
             }
         case .soft:
-            try await MainActor.run {
-                if let softGenerator {
-                    softGenerator.impactOccurred()
-                } else {
-                    throw HapticError.engineNotPrepared
+            await MainActor.run {
+                if softGenerator == nil {
+                    softGenerator = UIImpactFeedbackGenerator(style: .soft)
                 }
+                softGenerator?.impactOccurred()
             }
         case .rigid:
-            try await MainActor.run {
-                if let rigidGenerator {
-                    rigidGenerator.impactOccurred()
-                } else {
-                    throw HapticError.engineNotPrepared
+            await MainActor.run {
+                if rigidGenerator == nil {
+                    rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
                 }
+                rigidGenerator?.impactOccurred()
             }
-        case .success:
-            try await MainActor.run {
-                if let notificationGenerator {
-                    notificationGenerator.notificationOccurred(.success)
-                } else {
-                    throw HapticError.engineNotPrepared
+        case .success, .error, .warning:
+            await MainActor.run {
+                if notificationGenerator == nil {
+                    notificationGenerator = UINotificationFeedbackGenerator()
                 }
-            }
-        case .error:
-            try await MainActor.run {
-                if let notificationGenerator {
-                    notificationGenerator.notificationOccurred(.error)
-                } else {
-                    throw HapticError.engineNotPrepared
-                }
-            }
-        case .warning:
-            try await MainActor.run {
-                if let notificationGenerator {
-                    notificationGenerator.notificationOccurred(.warning)
-                } else {
-                    throw HapticError.engineNotPrepared
+                switch option {
+                case .success:
+                    notificationGenerator?.notificationOccurred(.success)
+                case .warning:
+                    notificationGenerator?.notificationOccurred(.warning)
+                case .error:
+                    notificationGenerator?.notificationOccurred(.error)
+                default:
+                    break
                 }
             }
         case .selection:
-            try await MainActor.run {
-                if let selectionGenerator {
-                    selectionGenerator.selectionChanged()
-                } else {
-                    throw HapticError.engineNotPrepared
+            await MainActor.run {
+                if selectionGenerator == nil {
+                    selectionGenerator = UISelectionFeedbackGenerator()
                 }
+                selectionGenerator?.selectionChanged()
             }
         case .boing, .drums, .heartBeats, .inflate, .oscillate, .custom, .customCurve:
-            if let customEngine {
-                if !customEngineIsRunning {
-                    try await customEngine.start()
-                    customEngineIsRunning = true
-                }
-                
+            if !customEngineIsRunning {
+                await setUpAndPrepareCustomHapticEngine()
+            }
+            
+            do {
                 let pattern = try option.getCustomPattern()
-                let player = try customEngine.makePlayer(with: pattern)
-                try player.start(atTime: 0)
-            } else {
-                throw HapticError.engineNotPrepared
+                let player = try customEngine?.makePlayer(with: pattern)
+                try player?.start(atTime: 0)
+            } catch {
+                trackEvent(event: .customPatternNotFound)
             }
         }
     }
-
     
-    private func removeEngineFromMemory(option: HapticOption) async throws {
+    private func removeEngineFromMemory(option: HapticOption) async {
         switch option {
         case .light:
             await MainActor.run {
@@ -258,16 +256,20 @@ public final actor HapticManager {
                 selectionGenerator = nil
             }
         case .boing, .drums, .heartBeats, .inflate, .oscillate, .custom, .customCurve:
-            try await customEngine?.stop()
-            customEngine = nil
-            customEngineIsRunning = false
+            do {
+                try await customEngine?.stop()
+                customEngine = nil
+                customEngineIsRunning = false
+            } catch {
+                trackEvent(event: .customEngineFail(error: error))
+            }
         }
     }
         
-    private func configureCoreHapticEngine() async throws {
+    private func setUpAndPrepareCustomHapticEngine() async {
         // Make sure haptics are supported on the current device
         guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else {
-            printError("Current device does not support Haptics.")
+            trackEvent(event: .customHapticsNotSupported)
             return
         }
 
@@ -281,37 +283,92 @@ public final actor HapticManager {
             customEngine = engine
             customEngineIsRunning = true
         } catch let error {
-            printError("Engine Creation Error: \(error)")
-            throw error
+            trackEvent(event: .customEngineFail(error: error))
         }
     }
     
     private func configureEngineCallbacks(engine: CHHapticEngine) {
         // The stopped handler alerts you of engine stoppage due to external causes.
         engine.stoppedHandler = { [self] reason in
-            printError("The engine stopped for reason: \(reason.rawValue)")
+            /*
+             CHHapticEngineStoppedReasonAudioSessionInterrupt    = 1,
+             CHHapticEngineStoppedReasonApplicationSuspended        = 2,
+             CHHapticEngineStoppedReasonIdleTimeout                = 3,
+             CHHapticEngineStoppedReasonNotifyWhenFinished        = 4,
+             CHHapticEngineStoppedReasonEngineDestroyed          = 5,
+             CHHapticEngineStoppedReasonGameControllerDisconnect = 6,
+             CHHapticEngineStoppedReasonSystemError                = -1
+             */
+            trackEvent(event: .customEngineStopped(reason: reason.rawValue))
             customEngineIsRunning = false
         }
  
         // The reset handler provides an opportunity for your app to restart the engine in case of failure.
         engine.resetHandler = { [self] in
             // Try restarting the engine.
-            printError("The engine reset --> Restarting now!")
+            trackEvent(event: .customEngineRestart)
             do {
                 // Once the haptic starts playing, you can’t stop it, and pressing other buttons layers those haptics on top of any existing haptic patterns in the middle of playback.
                 try engine.start()
                 customEngineIsRunning = true
             } catch {
-                printError("Failed to restart the engine: \(error)")
+                trackEvent(event: .customEngineRestartFail(error: error))
                 customEngineIsRunning = false
             }
         }
     }
     
-    private func printError(_ string: String) {
-        #if DEBUG
-        print("📳 SwiftfulHaptics 📳 -> " + string)
-        #endif
+    private func trackEvent(event: Event) {
+        Task {
+            await logger?.trackEvent(event: event)
+        }
     }
     
+}
+
+extension HapticManager {
+    
+    enum Event: HapticLogEvent {
+        case customHapticsNotSupported
+        case customEngineFail(error: Error)
+        case customEngineStopped(reason: Int)
+        case customEngineRestart
+        case customEngineRestartFail(error: Error)
+        case customEngineNotPrepared
+        case customPatternNotFound
+        case wrongGenerator // should never happen, means bug herein
+        
+        var eventName: String {
+            switch self {
+            case .customHapticsNotSupported:          return "Haptics_CustomEngine_NotSupported"
+            case .customEngineFail:                   return "Haptics_CustomEngine_Fail"
+            case .customEngineStopped:                return "Haptics_CustomEngine_Stop"
+            case .customEngineRestart:                return "Haptics_CustomEngine_Restart"
+            case .customEngineRestartFail:            return "Haptics_CustomEngine_RestartFail"
+            case .customEngineNotPrepared:            return "Haptics_CustomEngine_NotPrepared"
+            case .customPatternNotFound:              return "Haptics_CustomEngine_NotFound"
+            case .wrongGenerator:                     return "Haptics_WrongGenerator"
+            }
+        }
+        
+        var parameters: [String : Any]? {
+            switch self {
+            case .customEngineFail(let error), .customEngineRestartFail(error: let error):
+                return error.eventParameters
+            case .customEngineStopped(let reason):
+                return ["reason_value": reason]
+            default:
+                return nil
+            }
+        }
+        
+        var type: HapticLogType {
+            switch self {
+            case .customEngineFail, .customEngineRestartFail, .wrongGenerator:
+                return .severe
+            default:
+                return .analytic
+            }
+        }
+    }
 }
