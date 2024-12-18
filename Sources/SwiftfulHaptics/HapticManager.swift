@@ -22,6 +22,13 @@ public final actor HapticManager {
     }
     
     // MARK: PREPARE
+    
+    /// Non-async function for convenience only. This will open a new Task and trigger asynchronously.
+    public func prepare(option: HapticOption) {
+        Task {
+            await prepare(option: option)
+        }
+    }
         
     public func prepare(option: HapticOption) async {
         await self.setUpAndPrepareForHaptic(option: option)
@@ -40,6 +47,13 @@ public final actor HapticManager {
     }
     
     // MARK: TEAR DOWN
+    
+    /// Non-async function for convenience only. This will open a new Task and trigger asynchronously.
+    public func tearDown(option: HapticOption) {
+        Task {
+            await tearDown(option: option)
+        }
+    }
     
     public func tearDown(option: HapticOption) async {
         await removeEngineFromMemory(option: option)
@@ -70,6 +84,13 @@ public final actor HapticManager {
     }
     
     // MARK: PLAY
+    
+    /// Non-async function for convenience only. This will open a new Task and trigger asynchronously.
+    public func play(option: HapticOption) {
+        Task {
+            await play(option: option)
+        }
+    }
     
     public func play(option: HapticOption) async {
         await trigger(option: option)
