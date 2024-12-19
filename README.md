@@ -8,63 +8,48 @@ Sample project: https://github.com/SwiftfulThinking/SwiftfulHapticsExample
 
 ```swift
 import SwiftfulHaptics
+
+let hapticManager = HapticManager(logger: HapticLogger?)
+let hapticManager = HapticManager()
 ```
 
-Add Environment Key to your project.
+## Usage
+
+Call prepare prior to triggering a haptic to improve response time the first time the haptic is played. This is not required.
 
 ```swift
-private struct HapticManagerKey: EnvironmentKey {
-    static let defaultValue: HapticManager = HapticManager()
-}
-
-extension EnvironmentValues {
-    var haptics: HapticManager {
-        get { self[HapticManagerKey.self] }
-        set { self[HapticManagerKey.self] = newValue }
-    }
-}
-```
-
-You must prepare a haptic engine before being able to play the haptic. 
-Call prepare any time earlier in the lifecycle - on app launch, on screen appear, on cell appear, etc.
-
-```swift
-.task {
-     try? await haptics.prepare(option: .medium)
+Task {
+     await hapticManager.prepare(option: option)
 }
 ```
 
 Then call play to trigger the haptic.
 
 ```swift
-Button("Click me) {
-     Task {
-          try? await haptics.play(option: .medium)
-     }
+Task {
+     await hapticManager.play(option: option)
 }
 ```
 
-Optionally call tearDown to remove the engine from memory. If you do this, you will need to prepare the engine again to use it again.
+Call tearDown to remove the haptic engine from memory. This is not required.
 
 ```swift
-.onDisappear {
-     Task {
-          try? await haptics.tearDown(option: .medium)
-     }
+Task {
+     await hapticManager.tearDown(option: option)
 }
 ```
 
 All methods:
 
 ```swift
-func prepare(option: HapticOption) async throws
-func prepare(options: [HapticOption]) async throws
+func prepare(option: HapticOption) async
+func prepare(options: [HapticOption]) async
 
-func play(option: HapticOption) async throws
-func play(options: [HapticOption]) async throws
+func play(option: HapticOption) async
+func play(options: [HapticOption]) async
 
-func tearDown(option: HapticOption) async throws
-func tearDown(options: [HapticOption]) async throws
+func tearDown(option: HapticOption) async
+func tearDown(options: [HapticOption]) async
 func tearDownAll() async throws
 ```
 
@@ -97,6 +82,8 @@ func tearDownAll() async throws
 .inflate(duration: 1.7)
 .oscillate()
 .oscillate(duration: 3.0)
+.pop()
+.pop(duration: 0.2)
     
 // Developer can inject custom pattern in to CoreHaptics
 .custom(events: [CHHapticEvent], parameters: [CHHapticDynamicParameter])
