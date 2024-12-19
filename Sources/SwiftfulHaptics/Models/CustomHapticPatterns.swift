@@ -156,4 +156,17 @@ struct CustomHapticPatterns {
 
         return try CHHapticPattern(events: [event1, event2], parameterCurves: [curve])
     }
+    
+    static func pop(duration: Double) throws -> CHHapticPattern {
+        let intensity1 = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1.0)
+        let sharpness1 = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1.0)
+        let event1 = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity1, sharpness1], relativeTime: 0)
+                
+        let curve1 = CHHapticParameterCurve(parameterID: .hapticIntensityControl, controlPoints: [
+            CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: 1.0),
+            CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: 1.0),
+        ], relativeTime: 0.0)
+
+        return try CHHapticPattern(events: [event1], parameterCurves: [curve1])
+    }
 }

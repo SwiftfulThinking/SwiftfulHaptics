@@ -162,7 +162,7 @@ public final actor HapticManager {
                 }
                 selectionGenerator?.prepare()
             }
-        case .boing, .drums, .heartBeats, .inflate, .oscillate, .custom, .customCurve:
+        case .boing, .drums, .heartBeats, .inflate, .oscillate, .pop, .custom, .customCurve:
             if customEngine == nil {
                 await setUpAndPrepareCustomHapticEngine()
             }
@@ -231,7 +231,7 @@ public final actor HapticManager {
                 }
                 selectionGenerator?.selectionChanged()
             }
-        case .boing, .drums, .heartBeats, .inflate, .oscillate, .custom, .customCurve:
+        case .boing, .drums, .heartBeats, .inflate, .oscillate, .pop, .custom, .customCurve:
             if !customEngineIsRunning {
                 await setUpAndPrepareCustomHapticEngine()
             }
@@ -276,7 +276,7 @@ public final actor HapticManager {
             await MainActor.run {
                 selectionGenerator = nil
             }
-        case .boing, .drums, .heartBeats, .inflate, .oscillate, .custom, .customCurve:
+        case .boing, .drums, .heartBeats, .inflate, .oscillate, .pop, .custom, .customCurve:
             do {
                 try await customEngine?.stop()
                 customEngine = nil

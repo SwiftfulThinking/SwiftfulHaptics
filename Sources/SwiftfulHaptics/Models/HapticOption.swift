@@ -31,6 +31,7 @@ public enum HapticOption: CaseIterable, Sendable {
     case heartBeats(count: Int = 3, durationPerBeat: Double = 0.255)
     case inflate(duration: Double = 1.7)
     case oscillate(duration: Double = 3.0)
+    case pop(duration: Double = 0.2)
     
     // Develop can inject custom pattern in to CoreHaptics via CHHapticEngine
     case custom(events: [CHHapticEvent], parameters: [CHHapticDynamicParameter])
@@ -73,6 +74,7 @@ public enum HapticOption: CaseIterable, Sendable {
         case .heartBeats: return "heartBeats"
         case .inflate: return "inflate"
         case .oscillate: return "oscillate"
+        case .pop: return "pop"
         case .custom: return "custom"
         case .customCurve: return "customCurve"
         }
@@ -94,7 +96,8 @@ public enum HapticOption: CaseIterable, Sendable {
             .drums,
             .heartBeats(),
             .inflate(),
-            .oscillate()
+            .oscillate(),
+            .pop()
         ]
     }
 }
