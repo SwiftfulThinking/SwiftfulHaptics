@@ -49,11 +49,14 @@ public enum HapticOption: CaseIterable, Sendable {
             return try CustomHapticPatterns.inflate(duration: duration)
         case .oscillate(duration: let duration):
             return try CustomHapticPatterns.oscillate(duration: duration)
+        case .pop(duration: let duration):
+            return try CustomHapticPatterns.pop(duration: duration)
         case .custom(events: let events, parameters: let parameters):
             return try CHHapticPattern(events: events, parameters: parameters)
         case .customCurve(events: let events, parameterCurves: let parameterCurves):
             return try CHHapticPattern(events: events, parameterCurves: parameterCurves)
-        default:
+        // These shouldn't need custom patterns
+        case .selection, .soft, .rigid, .light, .medium, .heavy, .success, .error, .warning:
             throw URLError(.unknown)
         }
     }
