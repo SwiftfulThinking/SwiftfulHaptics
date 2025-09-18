@@ -23,77 +23,91 @@ public final actor HapticManager {
     
     // MARK: PREPARE
         
-    public func prepare(option: HapticOption) async {
-        await self.setUpAndPrepareForHaptic(option: option)
+    public func prepare(option: HapticOption) {
+        Task {
+            await self.setUpAndPrepareForHaptic(option: option)
+        }
     }
 
-    public func prepare(options: [HapticOption]) async {
-        await withTaskGroup(of: Void.self) { group in
-            for option in options {
-                group.addTask {
-                    await self.setUpAndPrepareForHaptic(option: option)
+    public func prepare(options: [HapticOption]) {
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                for option in options {
+                    group.addTask {
+                        await self.setUpAndPrepareForHaptic(option: option)
+                    }
                 }
+                
+                await group.waitForAll()
             }
-            
-            await group.waitForAll()
         }
     }
     
     // MARK: TEAR DOWN
     
-    public func tearDown(option: HapticOption) async {
-        await removeEngineFromMemory(option: option)
+    public func tearDown(option: HapticOption) {
+        Task {
+            await removeEngineFromMemory(option: option)
+        }
     }
 
-    public func tearDown(options: [HapticOption]) async {
-        await withTaskGroup(of: Void.self) { group in
-            for option in options {
-                group.addTask {
-                    await self.tearDown(option: option)
+    public func tearDown(options: [HapticOption]) {
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                for option in options {
+                    group.addTask {
+                        await self.removeEngineFromMemory(option: option)
+                    }
                 }
+                
+                await group.waitForAll()
             }
-            
-            await group.waitForAll()
         }
     }
         
-    public func tearDownAll() async throws {
-        // Since HapticOption is no longer CaseIterable with the new structure,
-        // we'll tear down all generators and the custom engine
-        await MainActor.run {
-            notificationGenerator = nil
-            softGenerator = nil
-            lightGenerator = nil
-            mediumGenerator = nil
-            heavyGenerator = nil
-            rigidGenerator = nil
-            selectionGenerator = nil
-        }
-        
-        do {
-            try await customEngine?.stop()
-            customEngine = nil
-            customEngineIsRunning = false
-        } catch {
-            trackEvent(event: .customEngineFail(error: error))
+    public func tearDownAll() {
+        Task {
+            // Since HapticOption is no longer CaseIterable with the new structure,
+            // we'll tear down all generators and the custom engine
+            await MainActor.run {
+                notificationGenerator = nil
+                softGenerator = nil
+                lightGenerator = nil
+                mediumGenerator = nil
+                heavyGenerator = nil
+                rigidGenerator = nil
+                selectionGenerator = nil
+            }
+            
+            do {
+                try await customEngine?.stop()
+                customEngine = nil
+                customEngineIsRunning = false
+            } catch {
+                trackEvent(event: .customEngineFail(error: error))
+            }
         }
     }
     
     // MARK: PLAY
     
-    public func play(option: HapticOption) async {
-        await trigger(option: option)
+    public func play(option: HapticOption) {
+        Task {
+            await trigger(option: option)
+        }
     }
         
-    public func play(options: [HapticOption]) async {
-        await withTaskGroup(of: Void.self) { group in
-            for option in options {
-                group.addTask {
-                    await self.trigger(option: option)
+    public func play(options: [HapticOption]) {
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                for option in options {
+                    group.addTask {
+                        await self.trigger(option: option)
+                    }
                 }
+                
+                await group.waitForAll()
             }
-            
-            await group.waitForAll()
         }
     }
     
