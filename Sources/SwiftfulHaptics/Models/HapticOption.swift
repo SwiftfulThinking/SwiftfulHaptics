@@ -40,17 +40,22 @@ public enum HapticOption: CaseIterable, Sendable {
     func getCustomPattern() throws -> CHHapticPattern {
         switch self {
         case .boing(duration: let duration):
-            return try CustomHapticPatterns.boing(duration: duration)
+            return try CHHapticPattern(events: SpecialEffectHapticPatterns.boingEvents(duration: duration), 
+                                      parameterCurves: SpecialEffectHapticPatterns.boingCurves(duration: duration))
         case .drums:
-            return try CustomHapticPatterns.drums()
+            return try CHHapticPattern(events: GamingHapticPatterns.drumsEvents(), parameters: [])
         case .heartBeats(count: let count, durationPerBeat: let durationPerBeat):
-            return try CustomHapticPatterns.heartbeats(count: count, durationPerBeat: durationPerBeat)
+            return try CHHapticPattern(events: WellnessHapticPatterns.heartbeatsEvents(count: count, durationPerBeat: durationPerBeat), 
+                                      parameters: [])
         case .inflate(duration: let duration):
-            return try CustomHapticPatterns.inflate(duration: duration)
+            return try CHHapticPattern(events: SpecialEffectHapticPatterns.inflateEvents(duration: duration), 
+                                      parameterCurves: SpecialEffectHapticPatterns.inflateCurves(duration: duration))
         case .oscillate(duration: let duration):
-            return try CustomHapticPatterns.oscillate(duration: duration)
+            return try CHHapticPattern(events: SpecialEffectHapticPatterns.oscillateEvents(duration: duration), 
+                                      parameterCurves: SpecialEffectHapticPatterns.oscillateCurves(duration: duration))
         case .pop(duration: let duration):
-            return try CustomHapticPatterns.pop(duration: duration)
+            return try CHHapticPattern(events: UIInteractionHapticPatterns.popEvents(duration: duration), 
+                                      parameterCurves: UIInteractionHapticPatterns.popCurves(duration: duration))
         case .custom(events: let events, parameters: let parameters):
             return try CHHapticPattern(events: events, parameters: parameters)
         case .customCurve(events: let events, parameterCurves: let parameterCurves):
