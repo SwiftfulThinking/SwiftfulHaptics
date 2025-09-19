@@ -134,6 +134,8 @@ public enum HapticOption: Sendable {
         case tryAgainEncouragement(duration: Double = 0.3)
         case learningProgress(duration: Double = 0.5)
         case focusReminder(duration: Double = 0.3)
+        case flashcardFlip(duration: Double = 0.2)
+        case quizStart(duration: Double = 1.0)
         
         // Gamification
         case xpGainSmall(duration: Double = 0.3)
@@ -220,6 +222,8 @@ public enum HapticOption: Sendable {
         case pageTurn(duration: Double = 0.3)
         
         // Missing UI Patterns from HapticTesting
+        case bookPageTurn(duration: Double = 0.25)
+        case softTick(duration: Double = 0.3)
         
         // Custom patterns
         case customPop(duration: Double = 0.15)
@@ -587,6 +591,10 @@ extension HapticOption {
             return try CHHapticPattern(events: EducationalHapticPatterns.learningProgress(duration: duration), parameters: [])
         case .focusReminder(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.focusReminder(duration: duration), parameters: [])
+        case .flashcardFlip(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.flashcardFlip(duration: duration), parameters: [])
+        case .quizStart(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.quizStart(duration: duration), parameters: [])
             
         // Missing Gamification Patterns
         case .xpGainBonus(let duration):
@@ -719,6 +727,10 @@ extension HapticOption {
             return try CHHapticPattern(events: UIInteractionHapticPatterns.gestureRecognized(duration: duration), parameters: [])
         case .pageTurn(let duration):
             return try CHHapticPattern(events: UIInteractionHapticPatterns.pageTurn(duration: duration), parameters: [])
+        case .bookPageTurn(let duration):
+            return try CHHapticPattern(events: UIInteractionHapticPatterns.bookPageTurn(duration: duration), parameters: [])
+        case .softTick(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.softTick(duration: duration), parameters: [])
         case .customPop(let duration):
             return try CHHapticPattern(events: UIInteractionHapticPatterns.customPopEvents(duration: duration),
                                       parameterCurves: UIInteractionHapticPatterns.customPopCurves(duration: duration))
@@ -1059,6 +1071,8 @@ extension HapticOption {
         case .tryAgainEncouragement: return "tryAgainEncouragement"
         case .learningProgress: return "learningProgress"
         case .focusReminder: return "focusReminder"
+        case .flashcardFlip: return "flashcardFlip"
+        case .quizStart: return "quizStart"
         case .xpGainSmall: return "xpGainSmall"
         case .xpGainLarge: return "xpGainLarge"
         case .xpGainBonus: return "xpGainBonus"
@@ -1131,6 +1145,8 @@ extension HapticOption {
         case .refreshData: return "refreshData"
         case .gestureRecognized: return "gestureRecognized"
         case .pageTurn: return "pageTurn"
+        case .bookPageTurn: return "bookPageTurn"
+        case .softTick: return "softTick"
         case .customPop: return "customPop"
         case .contextualMenu: return "contextualMenu"
         case .sliderValueChange: return "sliderValueChange"
