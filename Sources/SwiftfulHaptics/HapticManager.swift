@@ -168,7 +168,7 @@ public final actor HapticManager {
                     selectionGenerator?.prepare()
                 }
             }
-        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .custom, .customCurve:
+        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .ratingsFeedback, .toolsWriting, .custom, .customCurve:
             if customEngine == nil {
                 await setUpAndPrepareCustomHapticEngine()
             }
@@ -245,7 +245,7 @@ public final actor HapticManager {
                     selectionGenerator?.selectionChanged()
                 }
             }
-        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .custom, .customCurve:
+        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .ratingsFeedback, .toolsWriting, .custom, .customCurve:
             if !customEngineIsRunning {
                 await setUpAndPrepareCustomHapticEngine()
             }
@@ -293,7 +293,7 @@ public final actor HapticManager {
                     selectionGenerator = nil
                 }
             }
-        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .custom, .customCurve:
+        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .ratingsFeedback, .toolsWriting, .custom, .customCurve:
             do {
                 try await customEngine?.stop()
                 customEngine = nil

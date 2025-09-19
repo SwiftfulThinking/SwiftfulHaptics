@@ -22,48 +22,53 @@ struct GamingHapticPatterns {
             relativeTime: 0.0
         )
         
-        // Quick decay vibration
-        let decayIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
-        let decaySharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
-        let electricDecay = CHHapticEvent(
+        // Quick electric crackle - continuous but very brief
+        let crackleIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
+        let crackleSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
+        let electricCrackle = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [decayIntensity, decaySharpness],
+            parameters: [crackleIntensity, crackleSharpness],
             relativeTime: 0.02,
             duration: duration - 0.02
         )
         
-        return [electricStrike, electricDecay]
+        return [electricStrike, electricCrackle]
     }
     
     static func lightningStrikeChain(duration: Double) -> [CHHapticEvent] {
         var events: [CHHapticEvent] = []
-        let chainCount = 4
-        let timeBetweenStrikes = duration / Double(chainCount)
         
-        for i in 0..<chainCount {
-            let intensity = Float(0.9 - (Float(i) * 0.15)) // Decreasing intensity
-            let strikeTime = Double(i) * timeBetweenStrikes
+        // Create 4 lightning strikes that jump between targets
+        let strikeCount = 4
+        let timeBetweenStrikes = duration / Double(strikeCount + 1)
+        
+        for i in 0..<strikeCount {
+            let strikeTime = Double(i + 1) * timeBetweenStrikes
             
-            let strikeIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
-            let strikeSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
-            let strike = CHHapticEvent(
+            // Each strike decreases in intensity but maintains sharpness
+            let intensity = 1.0 - (Double(i) * 0.15) // 1.0, 0.85, 0.7, 0.55
+            
+            // Main electric strike
+            let strikeIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(intensity))
+            let strikeSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.95))
+            let electricStrike = CHHapticEvent(
                 eventType: .hapticTransient,
                 parameters: [strikeIntensity, strikeSharpness],
                 relativeTime: strikeTime
             )
-            events.append(strike)
+            events.append(electricStrike)
             
-            // Electric buzz between strikes
-            if i < chainCount - 1 {
-                let buzzIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-                let buzzSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
-                let buzz = CHHapticEvent(
+            // Brief arc crackle after each strike (except the last)
+            if i < strikeCount - 1 {
+                let arcIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(intensity * 0.4))
+                let arcSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+                let electricArc = CHHapticEvent(
                     eventType: .hapticContinuous,
-                    parameters: [buzzIntensity, buzzSharpness],
-                    relativeTime: strikeTime + 0.05,
-                    duration: timeBetweenStrikes * 0.6
+                    parameters: [arcIntensity, arcSharpness],
+                    relativeTime: strikeTime + 0.02,
+                    duration: timeBetweenStrikes * 0.3
                 )
-                events.append(buzz)
+                events.append(electricArc)
             }
         }
         
@@ -71,86 +76,123 @@ struct GamingHapticPatterns {
     }
     
     static func lightningStrikeHeavyEvents(duration: Double) -> [CHHapticEvent] {
-        // Massive initial strike
-        let strikeIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
-        let strikeSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
-        let massiveStrike = CHHapticEvent(
+        // Massive initial electric blast
+        let blastIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
+        let blastSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
+        let electricBlast = CHHapticEvent(
             eventType: .hapticTransient,
-            parameters: [strikeIntensity, strikeSharpness],
+            parameters: [blastIntensity, blastSharpness],
             relativeTime: 0.0
         )
         
-        // Continuous rumble
-        let rumbleIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
-        let rumbleSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(-0.5))
+        // Secondary blast for emphasis
+        let secondBlastIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
+        let secondBlastSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
+        let secondElectricBlast = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [secondBlastIntensity, secondBlastSharpness],
+            relativeTime: 0.08
+        )
+        
+        // Long thunder rumble
+        let rumbleIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
+        let rumbleSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.1))
         let thunderRumble = CHHapticEvent(
             eventType: .hapticContinuous,
             parameters: [rumbleIntensity, rumbleSharpness],
-            relativeTime: 0.02,
-            duration: duration - 0.02
+            relativeTime: 0.15,
+            duration: duration - 0.15
         )
         
-        return [massiveStrike, thunderRumble]
+        return [electricBlast, secondElectricBlast, thunderRumble]
     }
     
     static func lightningStrikeHeavyCurves(duration: Double) -> [CHHapticParameterCurve] {
+        // Intensity decay curve for the rumble - powerful start, gradual decay
         let intensityCurve = CHHapticParameterCurve(
             parameterID: .hapticIntensityControl,
             controlPoints: [
                 CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(1.0)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.7)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.8)),
                 CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.7, value: Float(0.4)),
                 CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.0))
             ],
-            relativeTime: 0.0
+            relativeTime: 0.15
         )
         
-        return [intensityCurve]
+        // Sharpness curve - starts dull, gets slightly sharper for distant thunder feel
+        let sharpnessCurve = CHHapticParameterCurve(
+            parameterID: .hapticSharpnessControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(-0.3)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.5, value: Float(-0.1)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(-0.5))
+            ],
+            relativeTime: 0.15
+        )
+        
+        return [intensityCurve, sharpnessCurve]
     }
     
     // MARK: - Coin Collection Patterns
     
     static func coinCollectSingle(duration: Double) -> [CHHapticEvent] {
-        // Light but sharp metallic tap
+        // Crisp, satisfying metallic "ping" - like a coin hitting your palm
         let coinIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
-        let coinSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
-        let coinTap = CHHapticEvent(
+        let coinSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
+        let coinPing = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [coinIntensity, coinSharpness],
             relativeTime: 0.0
         )
         
-        // Quick shimmer
-        let shimmerIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let shimmerSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
-        let shimmer = CHHapticEvent(
+        // Very brief metallic resonance
+        let resonanceIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let resonanceSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        let coinResonance = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [shimmerIntensity, shimmerSharpness],
+            parameters: [resonanceIntensity, resonanceSharpness],
             relativeTime: 0.02,
             duration: duration - 0.02
         )
         
-        return [coinTap, shimmer]
+        return [coinPing, coinResonance]
     }
     
     static func coinCollectMulti(duration: Double) -> [CHHapticEvent] {
         var events: [CHHapticEvent] = []
-        let coinCount = 8
-        let timeBetweenCoins = duration / Double(coinCount)
+        
+        // Create 6-8 coins collected in rapid succession
+        let coinCount = 7
+        let timeBetweenCoins = duration / Double(coinCount + 1)
         
         for i in 0..<coinCount {
-            let intensity = Float(0.5 + (Float(i) * 0.05)) // Increasing intensity
-            let coinTime = Double(i) * timeBetweenCoins
+            let coinTime = Double(i) * timeBetweenCoins + 0.1
             
-            let coinIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
-            let coinSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
-            let coin = CHHapticEvent(
+            // Each coin has slightly different characteristics for variety
+            let intensityVariation = 0.5 + (0.15 * Double(i % 3)) // 0.5, 0.65, 0.8, repeat
+            let sharpnessVariation = 0.85 + (0.05 * Double(i % 2)) // 0.85, 0.9, alternate
+            
+            let coinIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(intensityVariation))
+            let coinSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(sharpnessVariation))
+            let coinPing = CHHapticEvent(
                 eventType: .hapticTransient,
                 parameters: [coinIntensity, coinSharpness],
                 relativeTime: coinTime
             )
-            events.append(coin)
+            events.append(coinPing)
         }
+        
+        // Final satisfying "collection complete" resonance
+        let finalIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let finalSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
+        let finalResonance = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [finalIntensity, finalSharpness],
+            relativeTime: duration * 0.85,
+            duration: duration * 0.15
+        )
+        events.append(finalResonance)
         
         return events
     }
@@ -158,16 +200,16 @@ struct GamingHapticPatterns {
     static func coinCollectJackpotEvents(duration: Double) -> [CHHapticEvent] {
         var events: [CHHapticEvent] = []
         
-        // Building cascade of coins
-        let cascadeCount = 15
-        let cascadeDuration = duration * 0.7
+        // Phase 1: Initial cascade of coins (first 40% of duration)
+        let cascadePhase = duration * 0.4
+        let initialCoinCount = 12
         
-        for i in 0..<cascadeCount {
-            let coinTime = (Double(i) / Double(cascadeCount)) * cascadeDuration
-            let intensity = Float(0.4 + (Float(i) / Float(cascadeCount)) * 0.4)
+        for i in 0..<initialCoinCount {
+            let coinTime = Double(i) * (cascadePhase / Double(initialCoinCount))
+            let intensity = 0.4 + (Double(i) * 0.03) // Gradually building intensity
             
-            let coinIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
-            let coinSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
+            let coinIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(intensity))
+            let coinSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.85))
             let coin = CHHapticEvent(
                 eventType: .hapticTransient,
                 parameters: [coinIntensity, coinSharpness],
@@ -176,14 +218,36 @@ struct GamingHapticPatterns {
             events.append(coin)
         }
         
-        // Celebration rumble
+        // Phase 2: Excitement build-up continuous vibration
+        let buildUpIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
+        let buildUpSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
+        let buildUp = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [buildUpIntensity, buildUpSharpness],
+            relativeTime: cascadePhase,
+            duration: duration * 0.3
+        )
+        events.append(buildUp)
+        
+        // Phase 3: Jackpot explosion
+        let explosionTime = duration * 0.75
+        let explosionIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
+        let explosionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
+        let jackpotExplosion = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [explosionIntensity, explosionSharpness],
+            relativeTime: explosionTime
+        )
+        events.append(jackpotExplosion)
+        
+        // Phase 4: Celebration rumble
         let celebrationIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
-        let celebrationSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
+        let celebrationSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
         let celebration = CHHapticEvent(
             eventType: .hapticContinuous,
             parameters: [celebrationIntensity, celebrationSharpness],
-            relativeTime: cascadeDuration,
-            duration: duration - cascadeDuration
+            relativeTime: explosionTime + 0.05,
+            duration: duration - explosionTime - 0.05
         )
         events.append(celebration)
         
@@ -191,14 +255,17 @@ struct GamingHapticPatterns {
     }
     
     static func coinCollectJackpotCurves(duration: Double) -> [CHHapticParameterCurve] {
+        let explosionTime = duration * 0.75
+        
+        // Intensity curve for the celebration rumble - strong start, gentle fade
         let intensityCurve = CHHapticParameterCurve(
             parameterID: .hapticIntensityControl,
             controlPoints: [
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.4)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.7, value: Float(1.0)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.5))
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(1.0)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: (duration - explosionTime) * 0.5, value: Float(0.6)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration - explosionTime, value: Float(0.2))
             ],
-            relativeTime: 0.0
+            relativeTime: explosionTime + 0.05
         )
         
         return [intensityCurve]
@@ -207,110 +274,124 @@ struct GamingHapticPatterns {
     // MARK: - Sword Slash Patterns
     
     static func swordSlashLight(duration: Double) -> [CHHapticEvent] {
-        // Sharp cutting motion
+        // Quick, sharp cutting motion - like a blade slicing through air
         let slashIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
-        let slashSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
-        let slash = CHHapticEvent(
+        let slashSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.95))
+        let swordSlash = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [slashIntensity, slashSharpness],
             relativeTime: 0.0
         )
         
-        // Whoosh effect
-        let whooshIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
-        let whooshSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
-        let whoosh = CHHapticEvent(
+        // Brief cutting resonance - the blade cutting through
+        let cutIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let cutSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        let cutting = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [whooshIntensity, whooshSharpness],
-            relativeTime: 0.02,
-            duration: duration - 0.02
+            parameters: [cutIntensity, cutSharpness],
+            relativeTime: 0.03,
+            duration: duration - 0.03
         )
         
-        return [slash, whoosh]
+        return [swordSlash, cutting]
     }
     
     static func swordSlashHeavyEvents(duration: Double) -> [CHHapticEvent] {
-        // Wind up
-        let windupIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let windupSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.4))
-        let windup = CHHapticEvent(
+        // Wind-up sensation - gathering momentum
+        let windUpIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let windUpSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
+        let windUp = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [windupIntensity, windupSharpness],
+            parameters: [windUpIntensity, windUpSharpness],
             relativeTime: 0.0,
             duration: duration * 0.4
         )
         
-        // Heavy strike
-        let strikeIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
-        let strikeSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
-        let strike = CHHapticEvent(
-            eventType: .hapticTransient,
-            parameters: [strikeIntensity, strikeSharpness],
-            relativeTime: duration * 0.45
-        )
-        
-        // Impact vibration
-        let impactIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
-        let impactSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
+        // Massive impact - the sword striking
+        let impactTime = duration * 0.4
+        let impactIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
+        let impactSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
         let impact = CHHapticEvent(
-            eventType: .hapticContinuous,
+            eventType: .hapticTransient,
             parameters: [impactIntensity, impactSharpness],
-            relativeTime: duration * 0.5,
-            duration: duration * 0.5
+            relativeTime: impactTime
         )
         
-        return [windup, strike, impact]
+        // Heavy cutting through with weight
+        let heavyCutIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
+        let heavyCutSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
+        let heavyCutting = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [heavyCutIntensity, heavyCutSharpness],
+            relativeTime: impactTime + 0.05,
+            duration: duration - impactTime - 0.05
+        )
+        
+        return [windUp, impact, heavyCutting]
     }
     
     static func swordSlashHeavyCurves(duration: Double) -> [CHHapticParameterCurve] {
-        let intensityCurve = CHHapticParameterCurve(
+        let impactTime = duration * 0.4
+        
+        // Wind-up intensity curve - builds anticipation
+        let windUpCurve = CHHapticParameterCurve(
             parameterID: .hapticIntensityControl,
             controlPoints: [
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.3)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.4, value: Float(0.6)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.45, value: Float(1.0)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.7, value: Float(0.5)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.0))
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.1)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.6)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.4, value: Float(1.0))
             ],
             relativeTime: 0.0
         )
         
-        return [intensityCurve]
+        // Heavy cut decay - powerful start, gradual fade
+        let cutDecayCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(1.0)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: (duration - impactTime) * 0.6, value: Float(0.4)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration - impactTime, value: Float(0.1))
+            ],
+            relativeTime: impactTime + 0.05
+        )
+        
+        return [windUpCurve, cutDecayCurve]
     }
     
     // MARK: - Arrow Release Pattern
     
     static func arrowReleaseEvents(duration: Double) -> [CHHapticEvent] {
-        // Tension build
+        // Tension build-up before release
         let tensionIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
-        let tensionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
+        let tensionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
         let tension = CHHapticEvent(
             eventType: .hapticContinuous,
             parameters: [tensionIntensity, tensionSharpness],
             relativeTime: 0.0,
-            duration: duration * 0.6
+            duration: duration * 0.3
         )
         
-        // Release snap
+        // Sharp release - the moment of letting go
+        let releaseTime = duration * 0.3
         let releaseIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
         let releaseSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
         let release = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [releaseIntensity, releaseSharpness],
-            relativeTime: duration * 0.65
+            relativeTime: releaseTime
         )
         
-        // String vibration
-        let vibrationIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let vibrationSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
-        let vibration = CHHapticEvent(
+        // Bowstring twang vibration
+        let twangIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let twangSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
+        let twang = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [vibrationIntensity, vibrationSharpness],
-            relativeTime: duration * 0.7,
-            duration: duration * 0.3
+            parameters: [twangIntensity, twangSharpness],
+            relativeTime: releaseTime + 0.02,
+            duration: duration - releaseTime - 0.02
         )
         
-        return [tension, release, vibration]
+        return [tension, release, twang]
     }
     
     static func arrowReleaseCurves(duration: Double) -> [CHHapticParameterCurve] {
@@ -330,7 +411,7 @@ struct GamingHapticPatterns {
     // MARK: - Explosion Patterns
     
     static func explosionSmall(duration: Double) -> [CHHapticEvent] {
-        // Initial blast
+        // Quick, sharp explosion burst
         let blastIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.9))
         let blastSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
         let blast = CHHapticEvent(
@@ -339,172 +420,212 @@ struct GamingHapticPatterns {
             relativeTime: 0.0
         )
         
-        // Rumble decay
-        let rumbleIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
-        let rumbleSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
-        let rumble = CHHapticEvent(
-            eventType: .hapticContinuous,
-            parameters: [rumbleIntensity, rumbleSharpness],
-            relativeTime: 0.02,
-            duration: duration - 0.02
-        )
-        
-        return [blast, rumble]
-    }
-    
-    static func explosionMassiveEvents(duration: Double) -> [CHHapticEvent] {
-        // Building rumble
-        let buildupIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let buildupSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(-0.3))
-        let buildup = CHHapticEvent(
-            eventType: .hapticContinuous,
-            parameters: [buildupIntensity, buildupSharpness],
-            relativeTime: 0.0,
-            duration: duration * 0.4
-        )
-        
-        // Massive blast
-        let blastIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
-        let blastSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
-        let blast = CHHapticEvent(
-            eventType: .hapticTransient,
-            parameters: [blastIntensity, blastSharpness],
-            relativeTime: duration * 0.42
-        )
-        
-        // Shockwave rumble
-        let shockwaveIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
-        let shockwaveSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(-0.5))
+        // Brief shockwave rumble
+        let shockwaveIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.5))
+        let shockwaveSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
         let shockwave = CHHapticEvent(
             eventType: .hapticContinuous,
             parameters: [shockwaveIntensity, shockwaveSharpness],
-            relativeTime: duration * 0.45,
-            duration: duration * 0.55
+            relativeTime: 0.03,
+            duration: duration - 0.03
         )
         
-        // Aftershocks
-        for i in 0..<3 {
-            let aftershockTime = duration * 0.6 + (Double(i) * 0.12)
-            let aftershockIntensity = Float(0.5 - Float(i) * 0.1)
-            
-            let shockIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: aftershockIntensity)
-            let shockSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
-            let shock = CHHapticEvent(
-                eventType: .hapticTransient,
-                parameters: [shockIntensity, shockSharpness],
-                relativeTime: aftershockTime
-            )
-            
-            return [buildup, blast, shockwave, shock]
-        }
-        
-        return [buildup, blast, shockwave]
+        return [blast, shockwave]
     }
     
-    static func explosionMassiveCurves(duration: Double) -> [CHHapticParameterCurve] {
-        let intensityCurve = CHHapticParameterCurve(
-            parameterID: .hapticIntensityControl,
-            controlPoints: [
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.3)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.4, value: Float(0.6)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.42, value: Float(1.0)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.7, value: Float(0.4)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.0))
-            ],
+    static func explosionMassiveEvents(duration: Double) -> [CHHapticEvent] {
+        // Initial ignition
+        let ignitionIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
+        let ignitionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
+        let ignition = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [ignitionIntensity, ignitionSharpness],
             relativeTime: 0.0
         )
         
-        return [intensityCurve]
+        // Building explosion pressure
+        let buildupIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let buildupSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
+        let buildup = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [buildupIntensity, buildupSharpness],
+            relativeTime: 0.05,
+            duration: duration * 0.25
+        )
+        
+        // Massive explosion peak
+        let explosionTime = duration * 0.3
+        let explosionIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
+        let explosionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
+        let explosion = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [explosionIntensity, explosionSharpness],
+            relativeTime: explosionTime
+        )
+        
+        // Long shockwave and debris
+        let shockwaveIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
+        let shockwaveSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.1))
+        let longShockwave = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [shockwaveIntensity, shockwaveSharpness],
+            relativeTime: explosionTime + 0.05,
+            duration: duration - explosionTime - 0.05
+        )
+        
+        return [ignition, buildup, explosion, longShockwave]
+    }
+    
+    static func explosionMassiveCurves(duration: Double) -> [CHHapticParameterCurve] {
+        let explosionTime = duration * 0.3
+        
+        // Buildup intensity curve - pressure building
+        let buildupCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.2)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.15, value: Float(0.6)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.25, value: Float(1.0))
+            ],
+            relativeTime: 0.05
+        )
+        
+        // Shockwave decay curve - powerful start, long fade
+        let shockwaveCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(1.0)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: (duration - explosionTime) * 0.3, value: Float(0.6)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: (duration - explosionTime) * 0.7, value: Float(0.3)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration - explosionTime, value: Float(0.0))
+            ],
+            relativeTime: explosionTime + 0.05
+        )
+        
+        return [buildupCurve, shockwaveCurve]
     }
     
     // MARK: - Other Combat Patterns
     
     static func shieldBlock(duration: Double) -> [CHHapticEvent] {
-        // Impact hit
+        // Initial impact on shield
         let impactIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
         let impactSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
-        let impact = CHHapticEvent(
+        let shieldImpact = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [impactIntensity, impactSharpness],
             relativeTime: 0.0
         )
         
-        // Shield reverb
-        let reverbIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.5))
-        let reverbSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
-        let reverb = CHHapticEvent(
+        // Shield absorption - the energy being dispersed
+        let absorptionIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let absorptionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
+        let absorption = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [reverbIntensity, reverbSharpness],
-            relativeTime: 0.02,
-            duration: duration - 0.02
+            parameters: [absorptionIntensity, absorptionSharpness],
+            relativeTime: 0.05,
+            duration: duration * 0.6
         )
         
-        return [impact, reverb]
+        // Metallic reverb/echo from shield
+        let reverbIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.25))
+        let reverbSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
+        let shieldReverb = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [reverbIntensity, reverbSharpness],
+            relativeTime: duration * 0.7,
+            duration: duration * 0.3
+        )
+        
+        return [shieldImpact, absorption, shieldReverb]
     }
     
     static func criticalHit(duration: Double) -> [CHHapticEvent] {
-        // First hit
-        let hit1Intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.9))
-        let hit1Sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
-        let hit1 = CHHapticEvent(
+        // First impact - the critical strike
+        let firstHitIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
+        let firstHitSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
+        let firstHit = CHHapticEvent(
             eventType: .hapticTransient,
-            parameters: [hit1Intensity, hit1Sharpness],
+            parameters: [firstHitIntensity, firstHitSharpness],
             relativeTime: 0.0
         )
         
-        // Emphasis hit
-        let hit2Intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
-        let hit2Sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
-        let hit2 = CHHapticEvent(
+        // Brief pause for emphasis
+        
+        // Second impact - the follow-through
+        let secondHitTime = duration * 0.4
+        let secondHitIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
+        let secondHitSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        let secondHit = CHHapticEvent(
             eventType: .hapticTransient,
-            parameters: [hit2Intensity, hit2Sharpness],
-            relativeTime: duration * 0.4
+            parameters: [secondHitIntensity, secondHitSharpness],
+            relativeTime: secondHitTime
         )
         
-        // Success vibration
-        let successIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
-        let successSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
-        let success = CHHapticEvent(
+        // Resonating aftermath
+        let aftermathIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let aftermathSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
+        let aftermath = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [successIntensity, successSharpness],
-            relativeTime: duration * 0.5,
-            duration: duration * 0.5
+            parameters: [aftermathIntensity, aftermathSharpness],
+            relativeTime: secondHitTime + 0.05,
+            duration: duration - secondHitTime - 0.05
         )
         
-        return [hit1, hit2, success]
+        return [firstHit, secondHit, aftermath]
     }
     
     // MARK: - Combo Patterns
     
     static func comboHit3x(duration: Double) -> [CHHapticEvent] {
         var events: [CHHapticEvent] = []
-        let hitTimes = [0.0, 0.33, 0.66]
-        let intensities: [Float] = [0.6, 0.7, 0.9]
         
-        for (index, time) in hitTimes.enumerated() {
-            let hitIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensities[index])
-            let hitSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        // Three escalating hits with increasing intensity
+        let hitTimings = [0.0, duration * 0.4, duration * 0.75]
+        let intensities: [Float] = [0.6, 0.75, 0.9] // Building power
+        let sharpnesses: [Float] = [0.7, 0.8, 0.9] // Getting more precise
+        
+        for i in 0..<3 {
+            let hitIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensities[i])
+            let hitSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpnesses[i])
             let hit = CHHapticEvent(
                 eventType: .hapticTransient,
                 parameters: [hitIntensity, hitSharpness],
-                relativeTime: time * duration
+                relativeTime: hitTimings[i]
             )
             events.append(hit)
         }
+        
+        // Final impact resonance for the finishing blow
+        let finishIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let finishSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
+        let finishResonance = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [finishIntensity, finishSharpness],
+            relativeTime: hitTimings[2] + 0.05,
+            duration: duration - hitTimings[2] - 0.05
+        )
+        events.append(finishResonance)
         
         return events
     }
     
     static func comboHit5x(duration: Double) -> [CHHapticEvent] {
         var events: [CHHapticEvent] = []
+        
+        // Five rapid hits with varying intensity and a big finish
         let hitCount = 5
+        let baseInterval = duration * 0.15 // Rapid succession
         
         for i in 0..<hitCount {
-            let hitTime = (Double(i) / Double(hitCount - 1)) * duration * 0.8
-            let intensity = Float(0.5 + (Float(i) / Float(hitCount)) * 0.4)
+            let hitTime = Double(i) * baseInterval
             
-            let hitIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
-            let hitSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+            // Intensity pattern: moderate → high → low → high → maximum
+            let intensityPattern: [Float] = [0.6, 0.8, 0.5, 0.85, 1.0]
+            let sharpnessPattern: [Float] = [0.7, 0.8, 0.6, 0.9, 1.0]
+            
+            let hitIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensityPattern[i])
+            let hitSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpnessPattern[i])
             let hit = CHHapticEvent(
                 eventType: .hapticTransient,
                 parameters: [hitIntensity, hitSharpness],
@@ -513,15 +634,17 @@ struct GamingHapticPatterns {
             events.append(hit)
         }
         
-        // Finishing hit
-        let finishIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
-        let finishSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
-        let finish = CHHapticEvent(
-            eventType: .hapticTransient,
+        // Extended finishing resonance for the final blow
+        let finishTime = Double(hitCount - 1) * baseInterval + 0.05
+        let finishIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.5))
+        let finishSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.4))
+        let extendedFinish = CHHapticEvent(
+            eventType: .hapticContinuous,
             parameters: [finishIntensity, finishSharpness],
-            relativeTime: duration * 0.9
+            relativeTime: finishTime,
+            duration: duration - finishTime
         )
-        events.append(finish)
+        events.append(extendedFinish)
         
         return events
     }
@@ -529,297 +652,322 @@ struct GamingHapticPatterns {
     // MARK: - Movement Patterns
     
     static func footstepGrass(duration: Double) -> [CHHapticEvent] {
-        // Soft, muffled step
-        let stepIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        // Soft, organic footstep - like stepping on soft ground
+        let stepIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
         let stepSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
-        let step = CHHapticEvent(
+        let grassStep = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [stepIntensity, stepSharpness],
             relativeTime: 0.0
         )
         
-        // Soft landing
-        let landIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.2))
-        let landSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.0))
-        let land = CHHapticEvent(
+        // Very brief grass rustle
+        let rustleIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.15))
+        let rustleSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.1))
+        let grassRustle = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [landIntensity, landSharpness],
+            parameters: [rustleIntensity, rustleSharpness],
             relativeTime: 0.02,
             duration: duration - 0.02
         )
         
-        return [step, land]
+        return [grassStep, grassRustle]
     }
     
     static func footstepMetal(duration: Double) -> [CHHapticEvent] {
-        // Hard, clanking step
-        let stepIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
-        let stepSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
-        let step = CHHapticEvent(
+        // Sharp, metallic clank
+        let clankIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
+        let clankSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.95))
+        let metalClank = CHHapticEvent(
             eventType: .hapticTransient,
-            parameters: [stepIntensity, stepSharpness],
+            parameters: [clankIntensity, clankSharpness],
             relativeTime: 0.0
         )
         
-        // Metallic ring
-        let ringIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let ringSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
-        let ring = CHHapticEvent(
+        // Metallic echo/reverberation
+        let echoIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let echoSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        let metalEcho = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [ringIntensity, ringSharpness],
-            relativeTime: 0.02,
-            duration: duration - 0.02
+            parameters: [echoIntensity, echoSharpness],
+            relativeTime: 0.03,
+            duration: duration - 0.03
         )
         
-        return [step, ring]
+        return [metalClank, metalEcho]
     }
     
     // MARK: - Vehicle Patterns
     
     static func engineStartEvents(duration: Double) -> [CHHapticEvent] {
-        // Ignition turn
-        let ignitionIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.5))
-        let ignitionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
+        // Initial ignition attempt
+        let ignitionIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let ignitionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
         let ignition = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [ignitionIntensity, ignitionSharpness],
             relativeTime: 0.0
         )
         
-        // Engine cranking
-        let crankingIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
-        let crankingSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
+        // Engine cranking/struggling
+        let crankingIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let crankingSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.4))
         let cranking = CHHapticEvent(
             eventType: .hapticContinuous,
             parameters: [crankingIntensity, crankingSharpness],
             relativeTime: 0.1,
-            duration: duration * 0.4
+            duration: duration * 0.3
         )
         
-        // Engine catch and rumble
-        let catchIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
-        let catchSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
+        // Engine catch and roar to life
+        let catchTime = duration * 0.4
+        let catchIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
+        let catchSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
         let engineCatch = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [catchIntensity, catchSharpness],
-            relativeTime: duration * 0.5
+            relativeTime: catchTime
         )
         
-        // Idle rumble
-        let idleIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.5))
-        let idleSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(-0.2))
-        let idle = CHHapticEvent(
+        // Steady engine rumble
+        let rumbleIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.5))
+        let rumbleSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
+        let engineRumble = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [idleIntensity, idleSharpness],
-            relativeTime: duration * 0.55,
-            duration: duration * 0.45
+            parameters: [rumbleIntensity, rumbleSharpness],
+            relativeTime: catchTime + 0.05,
+            duration: duration - catchTime - 0.05
         )
         
-        return [ignition, cranking, engineCatch, idle]
+        return [ignition, cranking, engineCatch, engineRumble]
     }
     
     static func engineStartCurves(duration: Double) -> [CHHapticParameterCurve] {
-        let intensityCurve = CHHapticParameterCurve(
+        let catchTime = duration * 0.4
+        
+        // Cranking intensity curve - struggling to start
+        let crankingCurve = CHHapticParameterCurve(
             parameterID: .hapticIntensityControl,
             controlPoints: [
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.5)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.3)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.5, value: Float(0.7)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.7, value: Float(0.5)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.4))
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.8)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.15, value: Float(0.4)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.9))
             ],
-            relativeTime: 0.0
+            relativeTime: 0.1
         )
         
-        return [intensityCurve]
+        // Engine rumble settling curve
+        let rumbleCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(1.0)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: (duration - catchTime) * 0.3, value: Float(0.7)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration - catchTime, value: Float(0.6))
+            ],
+            relativeTime: catchTime + 0.05
+        )
+        
+        return [crankingCurve, rumbleCurve]
     }
     
     static func turboBoostEvents(duration: Double) -> [CHHapticEvent] {
-        // Charge up
-        let chargeIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let chargeSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.4))
-        let charge = CHHapticEvent(
+        // Turbo spool up
+        let spoolIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let spoolSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
+        let turboSpool = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [chargeIntensity, chargeSharpness],
+            parameters: [spoolIntensity, spoolSharpness],
             relativeTime: 0.0,
             duration: duration * 0.3
         )
         
-        // Boost kick
-        let kickIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(1.0))
+        // Boost kick - the moment turbo engages
+        let kickTime = duration * 0.3
+        let kickIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.9))
         let kickSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
-        let kick = CHHapticEvent(
+        let boostKick = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [kickIntensity, kickSharpness],
-            relativeTime: duration * 0.35
+            relativeTime: kickTime
         )
         
-        // Acceleration
-        let accelIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
-        let accelSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
+        // Sustained acceleration power
+        let powerIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
+        let powerSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.4))
         let acceleration = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [accelIntensity, accelSharpness],
-            relativeTime: duration * 0.4,
-            duration: duration * 0.6
+            parameters: [powerIntensity, powerSharpness],
+            relativeTime: kickTime + 0.05,
+            duration: duration - kickTime - 0.05
         )
         
-        return [charge, kick, acceleration]
+        return [turboSpool, boostKick, acceleration]
     }
     
     static func turboBoostCurves(duration: Double) -> [CHHapticParameterCurve] {
-        let intensityCurve = CHHapticParameterCurve(
+        let kickTime = duration * 0.3
+        
+        // Spool up curve - building pressure
+        let spoolCurve = CHHapticParameterCurve(
             parameterID: .hapticIntensityControl,
             controlPoints: [
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.3)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.6)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.35, value: Float(1.0)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.7, value: Float(0.6)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.3))
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.1)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.15, value: Float(0.5)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(1.0))
             ],
             relativeTime: 0.0
         )
         
-        return [intensityCurve]
+        // Acceleration curve - strong start, gradual settling
+        let accelerationCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(1.0)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: (duration - kickTime) * 0.4, value: Float(0.8)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration - kickTime, value: Float(0.6))
+            ],
+            relativeTime: kickTime + 0.05
+        )
+        
+        return [spoolCurve, accelerationCurve]
     }
     
     // MARK: - Magic Patterns
     
     static func portalEnterEvents(duration: Double) -> [CHHapticEvent] {
-        // Phase shift start
-        let phaseIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
-        let phaseSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
-        let phase = CHHapticEvent(
+        // Initial dimensional tear
+        let tearIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
+        let tearSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        let dimensionalTear = CHHapticEvent(
             eventType: .hapticTransient,
-            parameters: [phaseIntensity, phaseSharpness],
+            parameters: [tearIntensity, tearSharpness],
             relativeTime: 0.0
         )
         
-        // Warping effect
-        let warpIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.5))
-        let warpSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
-        let warp = CHHapticEvent(
+        // Portal energy swirl
+        let swirlIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let swirlSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.3))
+        let energySwirl = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [warpIntensity, warpSharpness],
-            relativeTime: 0.05,
-            duration: duration * 0.7
+            parameters: [swirlIntensity, swirlSharpness],
+            relativeTime: 0.1,
+            duration: duration * 0.6
         )
         
-        // Arrival
-        let arrivalIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
-        let arrivalSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
-        let arrival = CHHapticEvent(
+        // Phase shift moment - the actual teleportation
+        let phaseTime = duration * 0.75
+        let phaseIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.9))
+        let phaseSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
+        let phaseShift = CHHapticEvent(
             eventType: .hapticTransient,
-            parameters: [arrivalIntensity, arrivalSharpness],
-            relativeTime: duration * 0.8
+            parameters: [phaseIntensity, phaseSharpness],
+            relativeTime: phaseTime
         )
         
-        return [phase, warp, arrival]
+        return [dimensionalTear, energySwirl, phaseShift]
     }
     
     static func portalEnterCurves(duration: Double) -> [CHHapticParameterCurve] {
-        let intensityCurve = CHHapticParameterCurve(
+        // Swirl intensity curve - building energy
+        let swirlCurve = CHHapticParameterCurve(
             parameterID: .hapticIntensityControl,
             controlPoints: [
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.6)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.2, value: Float(0.8)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.5, value: Float(0.4)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.8, value: Float(0.7)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.0))
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.3)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.7)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.6, value: Float(1.0))
             ],
-            relativeTime: 0.0
+            relativeTime: 0.1
         )
         
-        return [intensityCurve]
+        return [swirlCurve]
     }
     
     static func magicChargeEvents(duration: Double) -> [CHHapticEvent] {
-        // Initial spark
-        let sparkIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
-        let sparkSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
-        let spark = CHHapticEvent(
+        // Initial magic spark
+        let sparkIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let sparkSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
+        let magicSpark = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [sparkIntensity, sparkSharpness],
             relativeTime: 0.0
         )
         
-        // Building energy
+        // Building magical energy
         let energyIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let energySharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.4))
-        let energy = CHHapticEvent(
+        let energySharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
+        let buildingEnergy = CHHapticEvent(
             eventType: .hapticContinuous,
             parameters: [energyIntensity, energySharpness],
-            relativeTime: 0.05,
+            relativeTime: 0.1,
             duration: duration * 0.8
         )
         
-        // Power pulses
-        let pulseCount = 4
-        for i in 0..<pulseCount {
-            let pulseTime = 0.2 + (Double(i) * ((duration - 0.2) / Double(pulseCount)))
-            let pulseIntensity = Float(0.5 + (Float(i) / Float(pulseCount)) * 0.3)
-            
-            let pulseIntensityParam = CHHapticEventParameter(parameterID: .hapticIntensity, value: pulseIntensity)
-            let pulseSharpnessParam = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
-            let pulse = CHHapticEvent(
-                eventType: .hapticTransient,
-                parameters: [pulseIntensityParam, pulseSharpnessParam],
-                relativeTime: pulseTime
-            )
-            
-            return [spark, energy, pulse]
-        }
+        // Magical crescendo - power reaching peak
+        let crescendoTime = duration * 0.9
+        let crescendoIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.8))
+        let crescendoSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
+        let magicCrescendo = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [crescendoIntensity, crescendoSharpness],
+            relativeTime: crescendoTime
+        )
         
-        return [spark, energy]
+        return [magicSpark, buildingEnergy, magicCrescendo]
     }
     
     static func magicChargeCurves(duration: Double) -> [CHHapticParameterCurve] {
-        let intensityCurve = CHHapticParameterCurve(
+        // Energy building curve - slow start, dramatic crescendo
+        let energyCurve = CHHapticParameterCurve(
             parameterID: .hapticIntensityControl,
             controlPoints: [
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.3)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.5)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.6, value: Float(0.7)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.9, value: Float(0.9)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(1.0))
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.1)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.2)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.6, value: Float(0.5)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.8, value: Float(1.0))
             ],
-            relativeTime: 0.0
+            relativeTime: 0.1
         )
         
-        return [intensityCurve]
+        // Sharpness curve - getting more focused as power builds
+        let sharpnessCurve = CHHapticParameterCurve(
+            parameterID: .hapticSharpnessControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(-0.3)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.5, value: Float(0.0)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.8, value: Float(0.5))
+            ],
+            relativeTime: 0.1
+        )
+        
+        return [energyCurve, sharpnessCurve]
     }
     
     // MARK: - Machine Gun Pattern
     
     static func machineGun(duration: Double) -> [CHHapticEvent] {
         var events: [CHHapticEvent] = []
-        let shotsPerSecond = 10.0
-        let shotCount = Int(duration * shotsPerSecond)
+        
+        // Rapid-fire pattern - 15-20 shots per second
+        let shotInterval = 0.06 // ~16.7 shots per second
+        let shotCount = Int(duration / shotInterval)
         
         for i in 0..<shotCount {
-            let shotTime = Double(i) / shotsPerSecond
-            let intensity = Float(0.6 + (Float.random(in: -0.1...0.1))) // Slight variation
+            let shotTime = Double(i) * shotInterval
             
-            let shotIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
-            let shotSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
-            let shot = CHHapticEvent(
+            // Vary intensity slightly for realism
+            let baseIntensity: Float = 0.6
+            let variation = Float.random(in: -0.1...0.1)
+            let shotIntensity = max(0.4, min(0.8, baseIntensity + variation))
+            
+            let bulletIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: shotIntensity)
+            let bulletSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+            let bullet = CHHapticEvent(
                 eventType: .hapticTransient,
-                parameters: [shotIntensity, shotSharpness],
+                parameters: [bulletIntensity, bulletSharpness],
                 relativeTime: shotTime
             )
-            events.append(shot)
+            events.append(bullet)
         }
-        
-        // Barrel heat vibration
-        let heatIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let heatSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
-        let heat = CHHapticEvent(
-            eventType: .hapticContinuous,
-            parameters: [heatIntensity, heatSharpness],
-            relativeTime: 0.0,
-            duration: duration
-        )
-        events.append(heat)
         
         return events
     }
@@ -874,5 +1022,89 @@ struct GamingHapticPatterns {
         let event12 = CHHapticEvent(eventType: .hapticContinuous, parameters: [intensity12, sharpness12, decay12, sustained12], relativeTime: 1.6, duration: 1.0)
 
         return [event1, event2, event3, event4, event5, event6, event7, event8, event9, event10, event11, event12]
+    }
+    
+    // MARK: - Cascade Pattern
+    
+    static func cascadeEvents(duration: Double) -> [CHHapticEvent] {
+        // Primary cascade wave
+        let cascadeIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let cascadeSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
+        let cascadeWave = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [cascadeIntensity, cascadeSharpness],
+            relativeTime: 0.0,
+            duration: duration * 0.8
+        )
+        
+        // Peak impact at the end
+        let peakTime = duration * 0.8
+        let peakIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.9))
+        let peakSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        let cascadePeak = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [peakIntensity, peakSharpness],
+            relativeTime: peakTime
+        )
+        
+        return [cascadeWave, cascadePeak]
+    }
+    
+    static func cascadeCurves(duration: Double) -> [CHHapticParameterCurve] {
+        // Cascade building curve - exponential growth
+        let cascadeCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.2)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.4)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.6, value: Float(0.7)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.8, value: Float(1.0))
+            ],
+            relativeTime: 0.0
+        )
+        
+        return [cascadeCurve]
+    }
+    
+    // MARK: - Elastic Bounce Pattern
+    
+    static func elasticBounceEvents(duration: Double) -> [CHHapticEvent] {
+        var events: [CHHapticEvent] = []
+        
+        // Create bouncing pattern with decreasing height
+        let bounceCount = 5
+        var currentTime = 0.0
+        
+        for i in 0..<bounceCount {
+            let intensity = Float(0.8) * Float(pow(0.7, Double(i)))
+            let bounceIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
+            let bounceSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.7))
+            
+            let bounce = CHHapticEvent(
+                eventType: .hapticTransient,
+                parameters: [bounceIntensity, bounceSharpness],
+                relativeTime: currentTime
+            )
+            events.append(bounce)
+            
+            // Time between bounces decreases
+            currentTime += duration / Double(bounceCount + 2) * (1.5 - Double(i) * 0.2)
+        }
+        
+        return events
+    }
+    
+    static func elasticBounceCurves(duration: Double) -> [CHHapticParameterCurve] {
+        // Add subtle continuous vibration between bounces
+        let vibrationCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.1)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.0))
+            ],
+            relativeTime: 0.0
+        )
+        
+        return [vibrationCurve]
     }
 }

@@ -126,4 +126,28 @@ struct ProductivityHapticPatterns {
         
         return events
     }
+    
+    static func focusReminder(duration: Double) -> [CHHapticEvent] {
+        // Gentle attention getter - like a soft tap on the shoulder
+        let gentleTap = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [
+                CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4)),
+                CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
+            ],
+            relativeTime: 0.0
+        )
+        
+        // Brief attention wave
+        let waveIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let waveSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.4))
+        let attentionWave = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [waveIntensity, waveSharpness],
+            relativeTime: 0.05,
+            duration: duration - 0.05
+        )
+        
+        return [gentleTap, attentionWave]
+    }
 }
