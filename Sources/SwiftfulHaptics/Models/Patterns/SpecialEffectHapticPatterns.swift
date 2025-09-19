@@ -174,6 +174,53 @@ struct SpecialEffectHapticPatterns {
         return [mechanicalClick]
     }
     
+    static func heartbeatEvents(duration: Double) -> [CHHapticEvent] {
+        // Realistic heartbeat pattern: lub-dub with proper spacing
+        var events: [CHHapticEvent] = []
+        let beatCount = Int(duration / 0.8) // About 75 bpm
+        
+        for i in 0..<beatCount {
+            let beatTime = Double(i) * 0.8
+            
+            // Lub (first sound) - stronger, lower frequency
+            let lubIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
+            let lubSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(-0.2))
+            let lub = CHHapticEvent(
+                eventType: .hapticTransient,
+                parameters: [lubIntensity, lubSharpness],
+                relativeTime: beatTime
+            )
+            events.append(lub)
+            
+            // Dub (second sound) - slightly weaker, higher frequency
+            let dubIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.5))
+            let dubSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.1))
+            let dub = CHHapticEvent(
+                eventType: .hapticTransient,
+                parameters: [dubIntensity, dubSharpness],
+                relativeTime: beatTime + 0.15
+            )
+            events.append(dub)
+        }
+        
+        return events
+    }
+    
+    static func heartbeatCurves(duration: Double) -> [CHHapticParameterCurve] {
+        // Subtle intensity variation to simulate natural heartbeat
+        let heartbeatCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.6)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.5, value: Float(0.7)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.6))
+            ],
+            relativeTime: 0.0
+        )
+        
+        return [heartbeatCurve]
+    }
+    
     static func rubberBandEvents(duration: Double) -> [CHHapticEvent] {
         // Stretch phase - building tension
         let stretchIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
@@ -341,5 +388,47 @@ struct SpecialEffectHapticPatterns {
         ], relativeTime: 0.0)
 
         return [curve]
+    }
+    
+    // MARK: - Build Up
+    
+    static func buildUpEvents(duration: Double) -> [CHHapticEvent] {
+        // Continuous building vibration
+        let buildIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.2))
+        let buildSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.0))
+        let buildVibration = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [buildIntensity, buildSharpness],
+            relativeTime: 0.0,
+            duration: duration
+        )
+        
+        return [buildVibration]
+    }
+    
+    static func buildUpCurves(duration: Double) -> [CHHapticParameterCurve] {
+        // Gradual intensity increase
+        let intensityCurve = CHHapticParameterCurve(
+            parameterID: .hapticIntensityControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.1)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.3, value: Float(0.3)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration * 0.7, value: Float(0.6)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.9))
+            ],
+            relativeTime: 0.0
+        )
+        
+        // Sharpness increases too
+        let sharpnessCurve = CHHapticParameterCurve(
+            parameterID: .hapticSharpnessControl,
+            controlPoints: [
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(-0.5)),
+                CHHapticParameterCurve.ControlPoint(relativeTime: duration, value: Float(0.5))
+            ],
+            relativeTime: 0.0
+        )
+        
+        return [intensityCurve, sharpnessCurve]
     }
 }

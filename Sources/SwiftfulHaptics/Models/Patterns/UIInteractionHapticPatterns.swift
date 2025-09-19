@@ -141,14 +141,14 @@ struct UIInteractionHapticPatterns {
     static func pullToRefreshEvents(duration: Double) -> [CHHapticEvent] {
         var events: [CHHapticEvent] = []
         
-        // Building tension
+        // Elastic tension build
         let tensionIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
-        let tensionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
+        let tensionSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.4))
         let tension = CHHapticEvent(
             eventType: .hapticContinuous,
             parameters: [tensionIntensity, tensionSharpness],
             relativeTime: 0.0,
-            duration: 0.25
+            duration: duration * 0.6
         )
         events.append(tension)
         
@@ -158,20 +158,20 @@ struct UIInteractionHapticPatterns {
         let release = CHHapticEvent(
             eventType: .hapticTransient,
             parameters: [releaseIntensity, releaseSharpness],
-            relativeTime: 0.25
+            relativeTime: duration * 0.65
         )
         events.append(release)
         
-        // Refreshing vibration
-        let refreshIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
-        let refreshSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
-        let refreshing = CHHapticEvent(
+        // Confirmation vibration
+        let confirmIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let confirmSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
+        let confirm = CHHapticEvent(
             eventType: .hapticContinuous,
-            parameters: [refreshIntensity, refreshSharpness],
-            relativeTime: 0.3,
-            duration: duration - 0.3
+            parameters: [confirmIntensity, confirmSharpness],
+            relativeTime: duration * 0.7,
+            duration: duration * 0.3
         )
-        events.append(refreshing)
+        events.append(confirm)
         
         return events
     }
@@ -181,13 +181,12 @@ struct UIInteractionHapticPatterns {
         let tensionCurve = CHHapticParameterCurve(
             parameterID: .hapticIntensityControl,
             controlPoints: [
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: Float(0.3)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: 0.5, value: Float(0.5)),
-                CHHapticParameterCurve.ControlPoint(relativeTime: 1.0, value: Float(0.6))
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.0, value: 0.1),
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.4, value: 0.5),
+                CHHapticParameterCurve.ControlPoint(relativeTime: 0.6, value: 0.3)
             ],
             relativeTime: 0.0
         )
-        
         return [tensionCurve]
     }
     
@@ -454,6 +453,32 @@ struct UIInteractionHapticPatterns {
         )
         
         return [stepTick]
+    }
+    
+    static func sliderTick(duration: Double) -> [CHHapticEvent] {
+        // Subtle but precise tick feedback
+        let tickIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let tickSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
+        let tick = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [tickIntensity, tickSharpness],
+            relativeTime: 0.0
+        )
+        
+        return [tick]
+    }
+    
+    static func buttonPress(duration: Double) -> [CHHapticEvent] {
+        // Ultra-crisp button press feedback
+        let pressIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.6))
+        let pressSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(1.0))
+        let buttonTap = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [pressIntensity, pressSharpness],
+            relativeTime: 0.0
+        )
+        
+        return [buttonTap]
     }
     
     static func selectionTickEvents(duration: Double) -> [CHHapticEvent] {
@@ -934,6 +959,29 @@ struct UIInteractionHapticPatterns {
         return [pageStart, pageSettle]
     }
     
+    static func bookPageTurn(duration: Double) -> [CHHapticEvent] {
+        // Soft swipe feeling
+        let swipeIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let swipeSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.2))
+        let pageSwipe = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [swipeIntensity, swipeSharpness],
+            relativeTime: 0.0,
+            duration: duration * 0.8
+        )
+        
+        // Soft landing tap
+        let landIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let landSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.5))
+        let pageLand = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [landIntensity, landSharpness],
+            relativeTime: duration * 0.85
+        )
+        
+        return [pageSwipe, pageLand]
+    }
+    
     // MARK: - Pop Pattern
     
     static func popEvents(duration: Double) -> [CHHapticEvent] {
@@ -951,5 +999,43 @@ struct UIInteractionHapticPatterns {
         ], relativeTime: 0.0)
 
         return [curve1]
+    }
+    
+    // MARK: - Contextual Menu Pattern
+    
+    static func contextualMenuEvents(duration: Double) -> [CHHapticEvent] {
+        // Menu appearance with building pressure
+        let appearIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.4))
+        let appearSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.6))
+        let menuAppear = CHHapticEvent(
+            eventType: .hapticContinuous,
+            parameters: [appearIntensity, appearSharpness],
+            relativeTime: 0.0,
+            duration: 0.15
+        )
+        
+        // Menu activation pop
+        let activationIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.7))
+        let activationSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        let menuActivation = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [activationIntensity, activationSharpness],
+            relativeTime: 0.18
+        )
+        
+        return [menuAppear, menuActivation]
+    }
+    
+    static func sliderValueChangeEvents(duration: Double) -> [CHHapticEvent] {
+        // Quick discrete step feedback
+        let stepIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.3))
+        let stepSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.8))
+        let valueStep = CHHapticEvent(
+            eventType: .hapticTransient,
+            parameters: [stepIntensity, stepSharpness],
+            relativeTime: 0.0
+        )
+        
+        return [valueStep]
     }
 }
