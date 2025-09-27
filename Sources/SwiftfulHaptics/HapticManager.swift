@@ -23,13 +23,13 @@ public final actor HapticManager {
     
     // MARK: PREPARE
         
-    public func prepare(option: HapticOption) {
+    public nonisolated func prepare(option: HapticOption) {
         Task {
             await self.setUpAndPrepareForHaptic(option: option)
         }
     }
 
-    public func prepare(options: [HapticOption]) {
+    public nonisolated func prepare(options: [HapticOption]) {
         Task {
             await withTaskGroup(of: Void.self) { group in
                 for option in options {
@@ -45,13 +45,13 @@ public final actor HapticManager {
     
     // MARK: TEAR DOWN
     
-    public func tearDown(option: HapticOption) {
+    public nonisolated func tearDown(option: HapticOption) {
         Task {
             await removeEngineFromMemory(option: option)
         }
     }
 
-    public func tearDown(options: [HapticOption]) {
+    public nonisolated func tearDown(options: [HapticOption]) {
         Task {
             await withTaskGroup(of: Void.self) { group in
                 for option in options {
@@ -65,39 +65,21 @@ public final actor HapticManager {
         }
     }
         
-    public func tearDownAll() {
+    public nonisolated func tearDownAll() {
         Task {
-            // Since HapticOption is no longer CaseIterable with the new structure,
-            // we'll tear down all generators and the custom engine
-            await MainActor.run {
-                notificationGenerator = nil
-                softGenerator = nil
-                lightGenerator = nil
-                mediumGenerator = nil
-                heavyGenerator = nil
-                rigidGenerator = nil
-                selectionGenerator = nil
-            }
-            
-            do {
-                try await customEngine?.stop()
-                customEngine = nil
-                customEngineIsRunning = false
-            } catch {
-                trackEvent(event: .customEngineFail(error: error))
-            }
+            await removeAllEnginesFromMemory()
         }
     }
-    
+        
     // MARK: PLAY
     
-    public func play(option: HapticOption) {
+    public nonisolated func play(option: HapticOption) {
         Task {
             await trigger(option: option)
         }
     }
         
-    public func play(options: [HapticOption]) {
+    public nonisolated func play(options: [HapticOption]) {
         Task {
             await withTaskGroup(of: Void.self) { group in
                 for option in options {
@@ -301,6 +283,28 @@ public final actor HapticManager {
             } catch {
                 trackEvent(event: .customEngineFail(error: error))
             }
+        }
+    }
+    
+    private func removeAllEnginesFromMemory() async {
+        // Since HapticOption is no longer CaseIterable with the new structure,
+        // we'll tear down all generators and the custom engine
+        await MainActor.run {
+            notificationGenerator = nil
+            softGenerator = nil
+            lightGenerator = nil
+            mediumGenerator = nil
+            heavyGenerator = nil
+            rigidGenerator = nil
+            selectionGenerator = nil
+        }
+        
+        do {
+            try await customEngine?.stop()
+            customEngine = nil
+            customEngineIsRunning = false
+        } catch {
+            trackEvent(event: .customEngineFail(error: error))
         }
     }
         
