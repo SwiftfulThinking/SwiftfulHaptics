@@ -1,6 +1,6 @@
 //
 //  HapticOption.swift
-//  
+//
 //
 //  Created by Nick Sarno on 5/20/24.
 //
@@ -8,410 +8,326 @@
 import Foundation
 @preconcurrency import CoreHaptics
 
+/// All available haptic patterns in SwiftfulHaptics - flat enum for easy autocomplete discovery
 public enum HapticOption: Sendable {
-    case basic(BasicHaptic)
-    case gaming(GamingHaptic)
-    case educational(EducationalHaptic)
-    case uiInteraction(UIInteractionHaptic)
-    case specialEffect(SpecialEffectHaptic)
-    case wellness(WellnessHaptic)
-    case productivity(ProductivityHaptic)
-    case finance(FinanceHaptic)
-    case emotional(EmotionalHaptic)
-    case intenseGamification(IntenseGamificationHaptic)
-    case ratingsFeedback(RatingsFeedbackHaptic)
-    case toolsWriting(ToolsWritingHaptic)
+
+    // MARK: - Basic Haptics (9) - UIKit Feedback Generators
+
+    /// UISelectionFeedbackGenerator
+    case selection
+
+    /// UIImpactFeedbackGenerator - Soft
+    case soft
+
+    /// UIImpactFeedbackGenerator - Rigid
+    case rigid
+
+    /// UIImpactFeedbackGenerator - Light
+    case light
+
+    /// UIImpactFeedbackGenerator - Medium
+    case medium
+
+    /// UIImpactFeedbackGenerator - Heavy
+    case heavy
+
+    /// UINotificationFeedbackGenerator - Success
+    case success
+
+    /// UINotificationFeedbackGenerator - Error
+    case error
+
+    /// UINotificationFeedbackGenerator - Warning
+    case warning
+
+    // MARK: - Gaming Haptics (22)
+
+    case lightningStrikeQuick(duration: Double = 0.3)
+    case lightningStrikeChain(duration: Double = 1.2)
+    case lightningStrikeHeavy(duration: Double = 1.5)
+
+    case coinCollectSingle(duration: Double = 0.15)
+    case coinCollectMulti(duration: Double = 0.8)
+    case coinCollectJackpot(duration: Double = 2.0)
+
+    case swordSlashLight(duration: Double = 0.25)
+    case swordSlashHeavy(duration: Double = 0.6)
+
+    case arrowRelease(duration: Double = 0.5)
+    case explosionSmall(duration: Double = 0.4)
+    case explosionMassive(duration: Double = 1.8)
+    case shieldBlock(duration: Double = 0.35)
+    case criticalHit(duration: Double = 0.5)
+    case comboHit3x(duration: Double = 0.8)
+    case comboHit5x(duration: Double = 1.2)
+
+    case footstepGrass(duration: Double = 0.2)
+    case footstepMetal(duration: Double = 0.2)
+    case engineStart(duration: Double = 2.0)
+    case turboBoost(duration: Double = 1.5)
+    case portalEnter(duration: Double = 0.8)
+    case magicCharge(duration: Double = 1.0)
+    case machineGun(duration: Double = 2.0)
+    case cascade(duration: Double = 0.8)
+    case elasticBounce(duration: Double = 2.0)
+
+    case drums
+
+    // MARK: - Educational Haptics (79)
+
+    // Achievements
+    case achievementUnlocked(duration: Double = 1.2)
+    case levelUp(duration: Double = 1.5)
+    case starRating(count: Int = 3, duration: Double = 0.2)
+    case badgeEarned(duration: Double = 0.8)
+    case streakMilestone(duration: Double = 1.0)
+    case perfectScore(duration: Double = 1.0)
+    case rankPromotion(duration: Double = 1.5)
+    case dailyGoalComplete(duration: Double = 1.0)
+    case trophyUnlock(duration: Double = 1.8)
+    case questComplete(duration: Double = 1.5)
+    case highScore(duration: Double = 1.5)
+    case masteryAchieved(duration: Double = 2.0)
+    case correctAnswerBasic(duration: Double = 0.2)
+    case correctAnswerSimple(duration: Double = 0.25)
+    case correctAnswerStreak(streakCount: Int = 3, duration: Double = 0.5)
+    case correctAnswerPerfect(duration: Double = 0.8)
+    case perfectLessonComplete(duration: Double = 2.0)
+    case badgeUnlock(duration: Double = 0.8)
+    case skillMastery(duration: Double = 1.5)
+    case leaguePromotion(duration: Double = 1.5)
+    case celebrationBurst(duration: Double = 1.0)
+    case ascendingSuccess(duration: Double = 0.6)
+
+    // Learning Feedback
+    case correctAnswer(duration: Double = 0.3)
+    case incorrectGentle(duration: Double = 0.4)
+    case hintAvailable(duration: Double = 0.5)
+    case progressCheckpoint(duration: Double = 0.6)
+    case encouragementTap(duration: Double = 0.3)
+    case skillUnlocked(duration: Double = 0.8)
+    case lessonComplete(duration: Double = 1.0)
+    case practiceReminder(duration: Double = 0.5)
+    case knowledgeGained(duration: Double = 0.7)
+    case feedbackPositive(duration: Double = 0.4)
+    case wrongAnswerGentle(duration: Double = 0.5)
+    case wrongAnswerStandard(duration: Double = 0.3)
+    case nearMissAnswer(duration: Double = 0.35)
+    case grammarError(duration: Double = 0.25)
+    case hintActivation(duration: Double = 0.3)
+    case hintReveal(duration: Double = 0.3)
+    case timeCriticalWarning(duration: Double = 0.8)
+    case partialCredit(duration: Double = 0.4)
+    case tryAgainEncouragement(duration: Double = 0.3)
+    case learningProgress(duration: Double = 0.5)
+    case educationalFocusReminder(duration: Double = 0.3)  // Renamed from focusReminder
+    case flashcardFlip(duration: Double = 0.2)
+    case quizStart(duration: Double = 1.0)
+
+    // Gamification
+    case xpGainSmall(duration: Double = 0.3)
+    case xpGainLarge(duration: Double = 1.0)
+    case xpGainBonus(duration: Double = 0.5)
+    case xpGainDynamic(xpAmount: Int, duration: Double = 0.3)
+    case bonusPoints(duration: Double = 0.7)
+    case powerUpCollected(duration: Double = 0.5)
+    case lifeGained(duration: Double = 0.6)
+    case challengeAccepted(duration: Double = 0.5)
+    case timerTick(duration: Double = 0.1)
+    case rewardUnlock(duration: Double = 1.0)
+    case progressBarFill(duration: Double = 0.8)
+    case progressBarFilling(startPercent: Double, endPercent: Double, duration: Double = 1.0)
+    case progress25(duration: Double = 0.2)
+    case progress50(duration: Double = 0.3)
+    case progress75(duration: Double = 0.4)
+    case dailyGoalCheckpoint(checkpointNumber: Int, duration: Double = 0.5)
+    case leagueAdvancement(duration: Double = 1.2)
+    case crownGemCollection(duration: Double = 0.6)
+    case powerUpActivation(powerUpType: String, duration: Double = 0.5)
+    case challengeCompletion(isPerfect: Bool, duration: Double = 1.0)
+    case lessonPathProgress(nodeType: String, duration: Double = 0.4)
+    case socialFeatureNotification(notificationType: String = "default", duration: Double = 0.6)
+    case comboMultiplier(count: Int = 3, duration: Double = 0.6)
+    case streakRiskWarning(duration: Double = 0.6)
+    case streakLost(duration: Double = 0.5)
+    case streakBuilding(streakCount: Int, duration: Double = 0.5)
+    case streakMilestone5(duration: Double = 0.6)
+    case streakMilestone7Days(duration: Double = 1.0)
+    case streakMilestone10(duration: Double = 0.8)
+    case streakMilestone25(duration: Double = 1.2)
+    case streakMilestone30Days(duration: Double = 1.5)
+    case streakMilestone100Days(duration: Double = 2.0)
+
+    // MARK: - UI Interaction Haptics (35)
+
+    // Social Media
+    case doubleTapLike(duration: Double = 0.2)
+    case messageSent(duration: Double = 0.25)
+    case notificationPop(duration: Double = 0.3)
+    case typingIndicator(duration: Double = 0.1)
+    case commentPosted(duration: Double = 0.2)
+
+    // Navigation
+    case pullToRefresh(duration: Double = 0.4)
+    case swipeAction(duration: Double = 0.25, actionType: String = "default")
+    case toggleSwitch(duration: Double = 0.2)
+    case pickerDetent(duration: Double = 0.1)
+    case longPressActivation(duration: Double = 0.4)
+    case tabSelection(duration: Double = 0.15)
+    case navigationPush(duration: Double = 0.25)
+    case navigationPop(duration: Double = 0.2)
+    case modalPresent(duration: Double = 0.3)
+    case modalDismiss(duration: Double = 0.25)
+
+    // Input & Controls
+    case keyboardTap(duration: Double = 0.05)
+    case sliderStep(duration: Double = 0.05)
+    case sliderTick(duration: Double = 0.05)
+    case buttonPress(duration: Double = 0.03)
+    case selectionTick(duration: Double = 0.1)
+    case segmentChange(duration: Double = 0.15)
+    case zoomBoundary(duration: Double = 0.2)
+    case dragAndDrop(duration: Double = 0.25, phase: String = "start")
+    case formSubmit(duration: Double = 0.3)
+    case inputError(duration: Double = 0.4)
+    case loadingComplete(duration: Double = 0.5)
+    case appIconTap(duration: Double = 0.15)
+
+    // Additional
+    case scrollBounce(duration: Double = 0.3)
+    case pageFlip(duration: Double = 0.3)
+    case photoCapture(duration: Double = 0.2)
+    case shareAction(duration: Double = 0.3)
+    case downloadComplete(duration: Double = 0.5)
+    case refreshData(duration: Double = 0.4)
+    case gestureRecognized(duration: Double = 0.2)
+    case pageTurn(duration: Double = 0.3)
+    case bookPageTurn(duration: Double = 0.25)
+    case softTick(duration: Double = 0.3)
+    case customPop(duration: Double = 0.15)
+    case contextualMenu(duration: Double = 0.25)
+    case sliderValueChange(duration: Double = 0.06)
+    case pop(duration: Double = 0.2)
+
+    // MARK: - Special Effect Haptics (12)
+
+    case magicSparkle(duration: Double = 1.2)
+    case waterDrop(duration: Double = 0.6)
+    case specialEarthquake(duration: Double = 2.5)  // Renamed from earthquake to avoid conflict
+    case laserBeam(duration: Double = 0.8)
+    case typewriter(duration: Double = 0.04)
+    case heartbeat(duration: Double = 1.5)
+    case electricSpark(duration: Double = 0.3)
+    case rubberBand(duration: Double = 0.4)
+    case buildUp(duration: Double = 2.0)
+    case boing(duration: Double = 0.25)
+    case inflate(duration: Double = 1.7)
+    case oscillate(duration: Double = 3.0)
+
+    // MARK: - Wellness Haptics (8)
+
+    case breathingGuide(duration: Double = 4.0)
+    case calmPulse(duration: Double = 2.0)
+    case meditationBell(duration: Double = 1.5)
+    case relaxationWave(duration: Double = 3.0)
+    case zenNotification(duration: Double = 1.2)
+    case timeWarning30s(duration: Double = 0.5)
+    case timeWarning10s(duration: Double = 0.8)
+    case heartBeats(count: Int = 3, durationPerBeat: Double = 0.255)
+
+    // MARK: - Productivity Haptics (5)
+
+    case timerComplete(duration: Double = 1.5)
+    case taskCheck(duration: Double = 0.2)
+    case focusStart(duration: Double = 0.8)
+    case breakReminder(duration: Double = 1.2)
+    case productivityFocusReminder(duration: Double = 0.25)  // Renamed from focusReminder
+
+    // MARK: - Finance Haptics (4)
+
+    case paymentSuccess(duration: Double = 0.1)
+    case paymentProcessing(duration: Double = 2.0)
+    case transactionAlert(duration: Double = 0.5)
+    case receiptSaved(duration: Double = 0.4)
+
+    // MARK: - Emotional Haptics (5)
+
+    case excitementBuild(duration: Double = 2.0)
+    case disappointment(duration: Double = 0.8)
+    case surprise(duration: Double = 0.5)
+    case joy(duration: Double = 1.2)
+    case anticipation(duration: Double = 2.0)
+
+    // MARK: - Intense Gamification Haptics (31)
+
+    // Elemental Powers
+    case fireBurst(duration: Double = 1.0)
+    case iceShard(duration: Double = 1.5)
+    case earthquakeRumble(duration: Double = 2.5)
+    case windTornado(duration: Double = 1.8)
+    case thunderStorm(duration: Double = 2.5)
+    case meteorImpact(duration: Double = 3.0)
+    case intenseEarthquake(duration: Double = 2.5)  // Renamed from earthquake to avoid conflict
+    case intenseTornado(duration: Double = 1.8)  // Renamed from tornado
+
+    // Space & Sci-Fi
+    case plasmaCharge(duration: Double = 1.5)
+    case gravityWell(duration: Double = 2.0)
+    case photonBlast(duration: Double = 0.8)
+    case quantumShift(duration: Double = 0.6)
+    case rocketLaunch(duration: Double = 3.0)
+    case warpDrive(duration: Double = 2.0)
+    case laserCannon(duration: Double = 0.5)
+    case alienTeleport(duration: Double = 1.0)
+    case spaceExplosion(duration: Double = 2.5)
+
+    // Epic Abilities
+    case ultimatePower(duration: Double = 3.0)
+    case dragonRoar(duration: Double = 2.0)
+    case titanSmash(duration: Double = 1.5)
+    case dimensionalRift(duration: Double = 2.5)
+    case volcanicEruption(duration: Double = 3.5)
+    case titanStomp(duration: Double = 1.5)
+    case phoenixRebirth(duration: Double = 2.0)
+    case divineIntervention(duration: Double = 2.5)
+
+    // Power-ups & Boosts
+    case megaBoost(duration: Double = 1.5)
+    case starPower(duration: Double = 2.0)
+    case berserkerRage(duration: Double = 2.0)
+    case divineShield(duration: Double = 1.5)
+    case invincibilityActivation(duration: Double = 2.0)
+    case timeFreeze(duration: Double = 2.5)
+    case ultraCombo(duration: Double = 3.0)
+    case nuclearCharge(duration: Double = 2.5)
+
+    // MARK: - Ratings & Feedback Haptics (4)
+
+    case starRating1(duration: Double = 0.1)
+    case starRating3(duration: Double = 0.3)
+    case starRating5(duration: Double = 0.8)
+    case socialNotification(notificationType: String, duration: Double = 0.4)
+
+    // MARK: - Tools & Writing Haptics (2)
+
+    case pencilWrite(duration: Double = 0.05)
+    case eraserUse(duration: Double = 0.2)
+
+    // MARK: - Custom Patterns (2)
+
     case custom(events: [CHHapticEvent], parameters: [CHHapticDynamicParameter])
     case customCurve(events: [CHHapticEvent], parameterCurves: [CHHapticParameterCurve])
-    
-    // MARK: - Basic Haptics
-    public enum BasicHaptic: String, CaseIterable, Sendable {
-        // UISelectionFeedbackGenerator
-        case selection
-        
-        // UIImpactFeedbackGenerator
-        case soft
-        case rigid
-        case light
-        case medium
-        case heavy
-        
-        // UINotificationFeedbackGenerator
-        case success
-        case error
-        case warning
-    }
-    
-    // MARK: - Gaming Haptics
-    public enum GamingHaptic: Sendable {
-        // Lightning Strike Patterns
-        case lightningStrikeQuick(duration: Double = 0.3)
-        case lightningStrikeChain(duration: Double = 1.2)
-        case lightningStrikeHeavy(duration: Double = 1.5)
-        
-        // Coin Collection Patterns
-        case coinCollectSingle(duration: Double = 0.15)
-        case coinCollectMulti(duration: Double = 0.8)
-        case coinCollectJackpot(duration: Double = 2.0)
-        
-        // Sword Slash Patterns
-        case swordSlashLight(duration: Double = 0.25)
-        case swordSlashHeavy(duration: Double = 0.6)
-        
-        // Combat Patterns
-        case arrowRelease(duration: Double = 0.5)
-        case explosionSmall(duration: Double = 0.4)
-        case explosionMassive(duration: Double = 1.8)
-        case shieldBlock(duration: Double = 0.35)
-        case criticalHit(duration: Double = 0.5)
-        case comboHit3x(duration: Double = 0.8)
-        case comboHit5x(duration: Double = 1.2)
-        
-        // Movement & Effects
-        case footstepGrass(duration: Double = 0.2)
-        case footstepMetal(duration: Double = 0.2)
-        case engineStart(duration: Double = 2.0)
-        case turboBoost(duration: Double = 1.5)
-        case portalEnter(duration: Double = 0.8)
-        case magicCharge(duration: Double = 1.0)
-        case machineGun(duration: Double = 2.0)
-        case cascade(duration: Double = 0.8)
-        case elasticBounce(duration: Double = 2.0)
-        
-        // Apple-inspired
-        case drums
-    }
-    
-    // MARK: - Educational Haptics
-    public enum EducationalHaptic: Sendable {
-        // Achievement Patterns
-        case achievementUnlocked(duration: Double = 1.2)
-        case levelUp(duration: Double = 1.5)
-        case starRating(count: Int = 3, duration: Double = 0.2)
-        case badgeEarned(duration: Double = 0.8)
-        case streakMilestone(duration: Double = 1.0)
-        case perfectScore(duration: Double = 1.0)
-        case rankPromotion(duration: Double = 1.5)
-        case dailyGoalComplete(duration: Double = 1.0)
-        case trophyUnlock(duration: Double = 1.8)
-        case questComplete(duration: Double = 1.5)
-        case highScore(duration: Double = 1.5)
-        case masteryAchieved(duration: Double = 2.0)
-        
-        // Missing Achievement Patterns from HapticTesting
-        case correctAnswerBasic(duration: Double = 0.2)
-        case correctAnswerSimple(duration: Double = 0.25)
-        case correctAnswerStreak(streakCount: Int = 3, duration: Double = 0.5)
-        case correctAnswerPerfect(duration: Double = 0.8)
-        case perfectLessonComplete(duration: Double = 2.0)
-        case badgeUnlock(duration: Double = 0.8)
-        case skillMastery(duration: Double = 1.5)
-        case leaguePromotion(duration: Double = 1.5)
-        case celebrationBurst(duration: Double = 1.0)
-        case ascendingSuccess(duration: Double = 0.6)
-        
-        // Learning Feedback
-        case correctAnswer(duration: Double = 0.3)
-        case incorrectGentle(duration: Double = 0.4)
-        case hintAvailable(duration: Double = 0.5)
-        case progressCheckpoint(duration: Double = 0.6)
-        case encouragementTap(duration: Double = 0.3)
-        case skillUnlocked(duration: Double = 0.8)
-        case lessonComplete(duration: Double = 1.0)
-        case practiceReminder(duration: Double = 0.5)
-        case knowledgeGained(duration: Double = 0.7)
-        case feedbackPositive(duration: Double = 0.4)
-        
-        // Missing Learning Feedback Patterns from HapticTesting
-        case wrongAnswerGentle(duration: Double = 0.5)
-        case wrongAnswerStandard(duration: Double = 0.3)
-        case nearMissAnswer(duration: Double = 0.35)
-        case grammarError(duration: Double = 0.25)
-        case hintActivation(duration: Double = 0.3)
-        case hintReveal(duration: Double = 0.3)
-        case timeCriticalWarning(duration: Double = 0.8)
-        case partialCredit(duration: Double = 0.4)
-        case tryAgainEncouragement(duration: Double = 0.3)
-        case learningProgress(duration: Double = 0.5)
-        case focusReminder(duration: Double = 0.3)
-        case flashcardFlip(duration: Double = 0.2)
-        case quizStart(duration: Double = 1.0)
-        
-        // Gamification
-        case xpGainSmall(duration: Double = 0.3)
-        case xpGainLarge(duration: Double = 1.0)
-        case bonusPoints(duration: Double = 0.7)
-        case powerUpCollected(duration: Double = 0.5)
-        case lifeGained(duration: Double = 0.6)
-        case challengeAccepted(duration: Double = 0.5)
-        case timerTick(duration: Double = 0.1)
-        case rewardUnlock(duration: Double = 1.0)
-        case progressBarFill(duration: Double = 0.8)
-        case comboMultiplier(count: Int = 3, duration: Double = 0.6)
-        
-        // Missing Gamification Patterns from HapticTesting
-        case xpGainBonus(duration: Double = 0.5)
-        case xpGainDynamic(xpAmount: Int, duration: Double = 0.3)
-        case progress25(duration: Double = 0.2)
-        case progress50(duration: Double = 0.3)
-        case progress75(duration: Double = 0.4)
-        case progressBarFilling(startPercent: Double, endPercent: Double, duration: Double = 1.0)
-        case dailyGoalCheckpoint(checkpointNumber: Int, duration: Double = 0.5)
-        case leagueAdvancement(duration: Double = 1.2)
-        case crownGemCollection(duration: Double = 0.6)
-        case powerUpActivation(powerUpType: String, duration: Double = 0.5)
-        case challengeCompletion(isPerfect: Bool, duration: Double = 1.0)
-        case lessonPathProgress(nodeType: String, duration: Double = 0.4)
-        case socialFeatureNotification(notificationType: String = "default", duration: Double = 0.6)
-        
-        // Missing Streaks & Milestones Patterns from HapticTesting
-        case streakRiskWarning(duration: Double = 0.6)
-        case streakLost(duration: Double = 0.5)
-        case streakBuilding(streakCount: Int, duration: Double = 0.5)
-        case streakMilestone5(duration: Double = 0.6)
-        case streakMilestone7Days(duration: Double = 1.0)
-        case streakMilestone10(duration: Double = 0.8)
-        case streakMilestone25(duration: Double = 1.2)
-        case streakMilestone30Days(duration: Double = 1.5)
-        case streakMilestone100Days(duration: Double = 2.0)
-    }
-    
-    // MARK: - UI Interaction Haptics
-    public enum UIInteractionHaptic: Sendable {
-        // Social Media Patterns
-        case doubleTapLike(duration: Double = 0.2)
-        case messageSent(duration: Double = 0.25)
-        case notificationPop(duration: Double = 0.3)
-        case typingIndicator(duration: Double = 0.1)
-        case commentPosted(duration: Double = 0.2)
-        
-        // Navigation Patterns
-        case pullToRefresh(duration: Double = 0.4)
-        case swipeAction(duration: Double = 0.25, actionType: String = "default")
-        case toggleSwitch(duration: Double = 0.2)
-        case pickerDetent(duration: Double = 0.1)
-        case longPressActivation(duration: Double = 0.4)
-        case tabSelection(duration: Double = 0.15)
-        case navigationPush(duration: Double = 0.25)
-        case navigationPop(duration: Double = 0.2)
-        case modalPresent(duration: Double = 0.3)
-        case modalDismiss(duration: Double = 0.25)
-        
-        // Input & Controls
-        case keyboardTap(duration: Double = 0.05)
-        case sliderStep(duration: Double = 0.05)
-        case sliderTick(duration: Double = 0.05)
-        case buttonPress(duration: Double = 0.03)
-        case selectionTick(duration: Double = 0.1)
-        case segmentChange(duration: Double = 0.15)
-        case zoomBoundary(duration: Double = 0.2)
-        case dragAndDrop(duration: Double = 0.25, phase: String = "start")
-        case formSubmit(duration: Double = 0.3)
-        case inputError(duration: Double = 0.4)
-        case loadingComplete(duration: Double = 0.5)
-        case appIconTap(duration: Double = 0.15)
-        
-        // Additional Patterns
-        case scrollBounce(duration: Double = 0.3)
-        case pageFlip(duration: Double = 0.3)
-        case photoCapture(duration: Double = 0.2)
-        case shareAction(duration: Double = 0.3)
-        case downloadComplete(duration: Double = 0.5)
-        case refreshData(duration: Double = 0.4)
-        case gestureRecognized(duration: Double = 0.2)
-        case pageTurn(duration: Double = 0.3)
-        
-        // Missing UI Patterns from HapticTesting
-        case bookPageTurn(duration: Double = 0.25)
-        case softTick(duration: Double = 0.3)
-        
-        // Custom patterns
-        case customPop(duration: Double = 0.15)
-        case contextualMenu(duration: Double = 0.25)
-        case sliderValueChange(duration: Double = 0.06)
-        
-        // Apple-inspired
-        case pop(duration: Double = 0.2)
-    }
-    
-    // MARK: - Special Effect Haptics
-    public enum SpecialEffectHaptic: Sendable {
-        case magicSparkle(duration: Double = 1.2)
-        case waterDrop(duration: Double = 0.6)
-        case earthquake(duration: Double = 2.5)
-        case laserBeam(duration: Double = 0.8)
-        case typewriter(duration: Double = 0.04)
-        case heartbeat(duration: Double = 1.5)
-        case electricSpark(duration: Double = 0.3)
-        
-        // Missing Special Effects from HapticTesting
-        case rubberBand(duration: Double = 0.4)
-        case buildUp(duration: Double = 2.0)
-        
-        // Apple-inspired
-        case boing(duration: Double = 0.25)
-        case inflate(duration: Double = 1.7)
-        case oscillate(duration: Double = 3.0)
-    }
-    
-    // MARK: - Wellness Haptics
-    public enum WellnessHaptic: Sendable {
-        case breathingGuide(duration: Double = 4.0)
-        case calmPulse(duration: Double = 2.0)
-        case meditationBell(duration: Double = 1.5)
-        case relaxationWave(duration: Double = 3.0)
-        case zenNotification(duration: Double = 1.2)
-        
-        // Missing Wellness Patterns from HapticTesting
-        case timeWarning30s(duration: Double = 0.5)
-        case timeWarning10s(duration: Double = 0.8)
-        
-        // Apple-inspired
-        case heartBeats(count: Int = 3, durationPerBeat: Double = 0.255)
-    }
-    
-    // MARK: - Productivity Haptics
-    public enum ProductivityHaptic: Sendable {
-        case timerComplete(duration: Double = 1.5)
-        case taskCheck(duration: Double = 0.2)
-        case focusStart(duration: Double = 0.8)
-        case breakReminder(duration: Double = 1.2)
-        case focusReminder(duration: Double = 0.25)
-    }
-    
-    // MARK: - Finance Haptics
-    public enum FinanceHaptic: Sendable {
-        case paymentSuccess(duration: Double = 0.1)
-        case paymentProcessing(duration: Double = 2.0)
-        case transactionAlert(duration: Double = 0.5)
-        case receiptSaved(duration: Double = 0.4)
-    }
-    
-    // MARK: - Emotional Haptics
-    public enum EmotionalHaptic: Sendable {
-        case excitementBuild(duration: Double = 2.0)
-        case disappointment(duration: Double = 0.8)
-        case surprise(duration: Double = 0.5)
-        case joy(duration: Double = 1.2)
-        case anticipation(duration: Double = 2.0)
-    }
-    
-    // MARK: - Intense Gamification Haptics
-    public enum IntenseGamificationHaptic: Sendable {
-        // Elemental Powers
-        case fireBurst(duration: Double = 1.0)
-        case iceShard(duration: Double = 1.5)
-        case earthquakeRumble(duration: Double = 2.5)
-        case windTornado(duration: Double = 1.8)
-        
-        // Missing Elemental Powers from HapticTesting
-        case thunderStorm(duration: Double = 2.5)
-        case meteorImpact(duration: Double = 3.0)
-        case earthquake(duration: Double = 2.5)
-        case tornado(duration: Double = 1.8)
-        
-        // Space & Sci-Fi
-        case plasmaCharge(duration: Double = 1.5)
-        case gravityWell(duration: Double = 2.0)
-        case photonBlast(duration: Double = 0.8)
-        case quantumShift(duration: Double = 0.6)
-        case rocketLaunch(duration: Double = 3.0)
-        case warpDrive(duration: Double = 2.0)
-        case laserCannon(duration: Double = 0.5)
-        case alienTeleport(duration: Double = 1.0)
-        case spaceExplosion(duration: Double = 2.5)
-        
-        // Epic Abilities
-        case ultimatePower(duration: Double = 3.0)
-        case dragonRoar(duration: Double = 2.0)
-        case titanSmash(duration: Double = 1.5)
-        case dimensionalRift(duration: Double = 2.5)
-        case volcanicEruption(duration: Double = 3.5)
-        
-        // Missing Epic Abilities from HapticTesting
-        case titanStomp(duration: Double = 1.5)
-        case phoenixRebirth(duration: Double = 2.0)
-        case divineIntervention(duration: Double = 2.5)
-        
-        // Power-ups & Boosts
-        case megaBoost(duration: Double = 1.5)
-        case starPower(duration: Double = 2.0)
-        case berserkerRage(duration: Double = 2.0)
-        case divineShield(duration: Double = 1.5)
-        
-        // Missing Power-ups from HapticTesting
-        case invincibilityActivation(duration: Double = 2.0)
-        case timeFreeze(duration: Double = 2.5)
-        case ultraCombo(duration: Double = 3.0)
-        case nuclearCharge(duration: Double = 2.5)
-    }
-    
-    // MARK: - Ratings & Feedback Haptics
-    public enum RatingsFeedbackHaptic: Sendable {
-        case starRating1(duration: Double = 0.1)
-        case starRating3(duration: Double = 0.3)
-        case starRating5(duration: Double = 0.8)
-        case socialNotification(notificationType: String, duration: Double = 0.4)
-    }
-    
-    // MARK: - Tools & Writing Haptics
-    public enum ToolsWritingHaptic: Sendable {
-        case pencilWrite(duration: Double = 0.05)
-        case eraserUse(duration: Double = 0.2)
-    }
 }
 
 // MARK: - Pattern Generation
 extension HapticOption {
     func getCustomPattern() throws -> CHHapticPattern {
         switch self {
-        case .basic(_):
-            // Basic patterns use UIKit feedback generators, not custom patterns
+        // Basic patterns use UIKit feedback generators, not CoreHaptics
+        case .selection, .soft, .rigid, .light, .medium, .heavy, .success, .error, .warning:
             throw URLError(.unknown)
             
-        case .gaming(let pattern):
-            return try getGamingPattern(pattern)
-            
-        case .educational(let pattern):
-            return try getEducationalPattern(pattern)
-            
-        case .uiInteraction(let pattern):
-            return try getUIInteractionPattern(pattern)
-            
-        case .specialEffect(let pattern):
-            return try getSpecialEffectPattern(pattern)
-            
-        case .wellness(let pattern):
-            return try getWellnessPattern(pattern)
-            
-        case .productivity(let pattern):
-            return try getProductivityPattern(pattern)
-            
-        case .finance(let pattern):
-            return try getFinancePattern(pattern)
-            
-        case .emotional(let pattern):
-            return try getEmotionalPattern(pattern)
-            
-        case .intenseGamification(let pattern):
-            return try getIntenseGamificationPattern(pattern)
-            
-        case .ratingsFeedback(let pattern):
-            return try getRatingsFeedbackPattern(pattern)
-            
-        case .toolsWriting(let pattern):
-            return try getToolsWritingPattern(pattern)
-            
-        case .custom(events: let events, parameters: let parameters):
-            return try CHHapticPattern(events: events, parameters: parameters)
-            
-        case .customCurve(events: let events, parameterCurves: let parameterCurves):
-            return try CHHapticPattern(events: events, parameterCurves: parameterCurves)
-        }
-    }
-    
-    private func getGamingPattern(_ pattern: GamingHaptic) throws -> CHHapticPattern {
-        switch pattern {
+        // MARK: Gaming Patterns
         case .lightningStrikeQuick(let duration):
             return try CHHapticPattern(events: GamingHapticPatterns.lightningStrikeQuick(duration: duration), parameters: [])
         case .lightningStrikeChain(let duration):
@@ -432,7 +348,8 @@ extension HapticOption {
             return try CHHapticPattern(events: GamingHapticPatterns.swordSlashHeavyEvents(duration: duration),
                                       parameterCurves: GamingHapticPatterns.swordSlashHeavyCurves(duration: duration))
         case .arrowRelease(let duration):
-            return try CHHapticPattern(events: GamingHapticPatterns.arrowReleaseEvents(duration: duration), parameters: [])
+            return try CHHapticPattern(events: GamingHapticPatterns.arrowReleaseEvents(duration: duration), 
+                                      parameterCurves: GamingHapticPatterns.arrowReleaseCurves(duration: duration))
         case .explosionSmall(let duration):
             return try CHHapticPattern(events: GamingHapticPatterns.explosionSmall(duration: duration), parameters: [])
         case .explosionMassive(let duration):
@@ -472,15 +389,13 @@ extension HapticOption {
         case .elasticBounce(let duration):
             return try CHHapticPattern(events: GamingHapticPatterns.elasticBounceEvents(duration: duration),
                                       parameterCurves: GamingHapticPatterns.elasticBounceCurves(duration: duration))
-        }
-    }
-    
-    private func getEducationalPattern(_ pattern: EducationalHaptic) throws -> CHHapticPattern {
-        switch pattern {
+            
+        // MARK: Educational Patterns
         case .achievementUnlocked(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.achievementUnlocked(duration: duration), parameters: [])
         case .levelUp(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.levelUpEvents(duration: duration), parameterCurves: EducationalHapticPatterns.levelUpCurves(duration: duration))
+            return try CHHapticPattern(events: EducationalHapticPatterns.levelUpEvents(duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.levelUpCurves(duration: duration))
         case .starRating(let count, let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.starRating(count: count, duration: duration), parameters: [])
         case .badgeEarned(let duration):
@@ -502,6 +417,30 @@ extension HapticOption {
             return try CHHapticPattern(events: EducationalHapticPatterns.highScore(duration: duration), parameters: [])
         case .masteryAchieved(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.masteryAchieved(duration: duration), parameters: [])
+        case .correctAnswerBasic(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswerBasic(duration: duration), parameters: [])
+        case .correctAnswerSimple(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswerSimple(duration: duration), parameters: [])
+        case .correctAnswerStreak(let streakCount, let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswerStreak(streakCount: streakCount, duration: duration), parameters: [])
+        case .correctAnswerPerfect(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswerPerfectEvents(duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.correctAnswerPerfectCurves(duration: duration))
+        case .perfectLessonComplete(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.perfectLessonCompleteEvents(duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.perfectLessonCompleteCurves(duration: duration))
+        case .badgeUnlock(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.badgeUnlock(duration: duration), parameters: [])
+        case .skillMastery(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.skillMastery(duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.skillMasteryCurves(duration: duration))
+        case .leaguePromotion(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.leaguePromotion(duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.leaguePromotionCurves(duration: duration))
+        case .celebrationBurst(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.celebrationBurst(duration: duration), parameters: [])
+        case .ascendingSuccess(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.ascendingSuccess(duration: duration), parameters: [])
         case .correctAnswer(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswer(duration: duration), parameters: [])
         case .incorrectGentle(let duration):
@@ -515,59 +454,14 @@ extension HapticOption {
         case .skillUnlocked(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.skillUnlocked(duration: duration), parameters: [])
         case .lessonComplete(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.lessonCompleteEvents(duration: duration), parameterCurves: EducationalHapticPatterns.lessonCompleteCurves(duration: duration))
+            return try CHHapticPattern(events: EducationalHapticPatterns.lessonCompleteEvents(duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.lessonCompleteCurves(duration: duration))
         case .practiceReminder(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.practiceReminder(duration: duration), parameters: [])
         case .knowledgeGained(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.knowledgeGained(duration: duration), parameters: [])
         case .feedbackPositive(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.feedbackPositive(duration: duration), parameters: [])
-        case .xpGainSmall(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.xpGainSmall(duration: duration), parameters: [])
-        case .xpGainLarge(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.xpGainLargeEvents(duration: duration), parameterCurves: EducationalHapticPatterns.xpGainLargeCurves(duration: duration))
-        case .bonusPoints(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.bonusPoints(duration: duration), parameters: [])
-        case .powerUpCollected(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.powerUpCollected(duration: duration), parameters: [])
-        case .lifeGained(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.lifeGained(duration: duration), parameters: [])
-        case .challengeAccepted(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.challengeAccepted(duration: duration), parameters: [])
-        case .timerTick(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.timerTick(duration: duration), parameters: [])
-        case .rewardUnlock(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.rewardUnlock(duration: duration), parameters: [])
-        case .progressBarFill(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.progressBarFill(duration: duration), parameters: [])
-        case .comboMultiplier(let count, let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.comboMultiplier(count: count, duration: duration), parameters: [])
-            
-        // Missing Achievement Patterns
-        case .correctAnswerBasic(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswerBasic(duration: duration), parameters: [])
-        case .correctAnswerSimple(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswerSimple(duration: duration), parameters: [])
-        case .correctAnswerStreak(let streakCount, let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswerStreak(streakCount: streakCount, duration: duration), parameters: [])
-        case .correctAnswerPerfect(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.correctAnswerPerfectEvents(duration: duration), parameterCurves: EducationalHapticPatterns.correctAnswerPerfectCurves(duration: duration))
-        case .perfectLessonComplete(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.perfectLessonCompleteEvents(duration: duration), parameterCurves: EducationalHapticPatterns.perfectLessonCompleteCurves(duration: duration))
-        case .badgeUnlock(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.badgeUnlock(duration: duration), parameters: [])
-        case .skillMastery(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.skillMastery(duration: duration), 
-                                      parameterCurves: EducationalHapticPatterns.skillMasteryCurves(duration: duration))
-        case .leaguePromotion(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.leaguePromotion(duration: duration), 
-                                      parameterCurves: EducationalHapticPatterns.leaguePromotionCurves(duration: duration))
-        case .celebrationBurst(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.celebrationBurst(duration: duration), parameters: [])
-        case .ascendingSuccess(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.ascendingSuccess(duration: duration), parameters: [])
-            
-        // Missing Learning Feedback Patterns
         case .wrongAnswerGentle(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.wrongAnswerGentle(duration: duration), parameters: [])
         case .wrongAnswerStandard(let duration):
@@ -589,28 +483,45 @@ extension HapticOption {
             return try CHHapticPattern(events: EducationalHapticPatterns.tryAgainEncouragement(duration: duration), parameters: [])
         case .learningProgress(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.learningProgress(duration: duration), parameters: [])
-        case .focusReminder(let duration):
+        case .educationalFocusReminder(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.focusReminder(duration: duration), parameters: [])
         case .flashcardFlip(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.flashcardFlip(duration: duration), parameters: [])
         case .quizStart(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.quizStart(duration: duration), parameters: [])
-            
-        // Missing Gamification Patterns
+        case .xpGainSmall(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.xpGainSmall(duration: duration), parameters: [])
+        case .xpGainLarge(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.xpGainLargeEvents(duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.xpGainLargeCurves(duration: duration))
         case .xpGainBonus(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.xpGainBonus(duration: duration), parameters: [])
         case .xpGainDynamic(let xpAmount, let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.xpGainDynamicEvents(xpAmount: xpAmount, duration: duration), 
                                       parameterCurves: EducationalHapticPatterns.xpGainDynamicCurves(xpAmount: xpAmount, duration: duration))
+        case .bonusPoints(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.bonusPoints(duration: duration), parameters: [])
+        case .powerUpCollected(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.powerUpCollected(duration: duration), parameters: [])
+        case .lifeGained(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.lifeGained(duration: duration), parameters: [])
+        case .challengeAccepted(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.challengeAccepted(duration: duration), parameters: [])
+        case .timerTick(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.timerTick(duration: duration), parameters: [])
+        case .rewardUnlock(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.rewardUnlock(duration: duration), parameters: [])
+        case .progressBarFill(let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.progressBarFill(duration: duration), parameters: [])
+        case .progressBarFilling(let startPercent, let endPercent, let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.progressBarFillingEvents(startPercent: Float(startPercent), endPercent: Float(endPercent), duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.progressBarFillingCurves(startPercent: Float(startPercent), endPercent: Float(endPercent), duration: duration))
         case .progress25:
             return try CHHapticPattern(events: EducationalHapticPatterns.progress25(), parameters: [])
         case .progress50:
             return try CHHapticPattern(events: EducationalHapticPatterns.progress50(), parameters: [])
         case .progress75:
             return try CHHapticPattern(events: EducationalHapticPatterns.progress75(), parameters: [])
-        case .progressBarFilling(let startPercent, let endPercent, let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.progressBarFillingEvents(startPercent: Float(startPercent), endPercent: Float(endPercent), duration: duration), 
-                                      parameterCurves: EducationalHapticPatterns.progressBarFillingCurves(startPercent: Float(startPercent), endPercent: Float(endPercent), duration: duration))
         case .dailyGoalCheckpoint(let checkpointNumber, let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.dailyGoalCheckpoint(checkpointNumber: checkpointNumber, duration: duration), parameters: [])
         case .leagueAdvancement(let duration):
@@ -628,8 +539,8 @@ extension HapticOption {
             return try CHHapticPattern(events: EducationalHapticPatterns.lessonPathProgress(nodeType: nodeType), parameters: [])
         case .socialFeatureNotification(let notificationType, _):
             return try CHHapticPattern(events: EducationalHapticPatterns.socialFeatureNotification(notificationType: notificationType), parameters: [])
-            
-        // Missing Streaks & Milestones Patterns
+        case .comboMultiplier(let count, let duration):
+            return try CHHapticPattern(events: EducationalHapticPatterns.comboMultiplier(count: count, duration: duration), parameters: [])
         case .streakRiskWarning(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.streakRiskWarning(duration: duration), parameters: [])
         case .streakLost(let duration):
@@ -644,17 +555,15 @@ extension HapticOption {
         case .streakMilestone10(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.streakMilestone10(duration: duration), parameters: [])
         case .streakMilestone25(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.streakMilestone25Events(duration: duration), parameterCurves: EducationalHapticPatterns.streakMilestone25Curves(duration: duration))
+            return try CHHapticPattern(events: EducationalHapticPatterns.streakMilestone25Events(duration: duration), 
+                                      parameterCurves: EducationalHapticPatterns.streakMilestone25Curves(duration: duration))
         case .streakMilestone30Days(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.streakMilestone30Days(duration: duration), parameters: [])
         case .streakMilestone100Days(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.streakMilestone100Days(duration: duration), 
                                       parameterCurves: EducationalHapticPatterns.streakMilestone100DaysCurves(duration: duration))
-        }
-    }
-    
-    private func getUIInteractionPattern(_ pattern: UIInteractionHaptic) throws -> CHHapticPattern {
-        switch pattern {
+            
+        // MARK: UI Interaction Patterns
         case .doubleTapLike(let duration):
             return try CHHapticPattern(events: UIInteractionHapticPatterns.doubleTapLike(duration: duration), parameters: [])
         case .messageSent(let duration):
@@ -741,17 +650,14 @@ extension HapticOption {
         case .pop(let duration):
             return try CHHapticPattern(events: UIInteractionHapticPatterns.popEvents(duration: duration),
                                       parameterCurves: UIInteractionHapticPatterns.popCurves(duration: duration))
-        }
-    }
-    
-    private func getSpecialEffectPattern(_ pattern: SpecialEffectHaptic) throws -> CHHapticPattern {
-        switch pattern {
+            
+        // MARK: Special Effect Patterns
         case .magicSparkle(let duration):
             return try CHHapticPattern(events: SpecialEffectHapticPatterns.magicSparkle(duration: duration), parameters: [])
         case .waterDrop(let duration):
             return try CHHapticPattern(events: SpecialEffectHapticPatterns.waterDropEvents(duration: duration),
                                       parameterCurves: SpecialEffectHapticPatterns.waterDropCurves(duration: duration))
-        case .earthquake(let duration):
+        case .specialEarthquake(let duration):
             return try CHHapticPattern(events: SpecialEffectHapticPatterns.earthquakeEvents(duration: duration),
                                       parameterCurves: SpecialEffectHapticPatterns.earthquakeCurves(duration: duration))
         case .laserBeam(let duration):
@@ -779,11 +685,8 @@ extension HapticOption {
         case .oscillate(let duration):
             return try CHHapticPattern(events: SpecialEffectHapticPatterns.oscillateEvents(duration: duration),
                                       parameterCurves: SpecialEffectHapticPatterns.oscillateCurves(duration: duration))
-        }
-    }
-    
-    private func getWellnessPattern(_ pattern: WellnessHaptic) throws -> CHHapticPattern {
-        switch pattern {
+            
+        // MARK: Wellness Patterns
         case .breathingGuide(let duration):
             return try CHHapticPattern(events: WellnessHapticPatterns.breathingGuideEvents(duration: duration),
                                       parameterCurves: WellnessHapticPatterns.breathingGuideCurves(duration: duration))
@@ -798,18 +701,14 @@ extension HapticOption {
                                       parameterCurves: WellnessHapticPatterns.relaxationWaveCurves(duration: duration))
         case .zenNotification(let duration):
             return try CHHapticPattern(events: WellnessHapticPatterns.zenNotification(duration: duration), parameters: [])
-        case .heartBeats(let count, let durationPerBeat):
-            return try CHHapticPattern(events: WellnessHapticPatterns.heartbeatsEvents(count: count, durationPerBeat: durationPerBeat),
-                                      parameters: [])
         case .timeWarning30s(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.timeWarning30s(duration: duration), parameters: [])
         case .timeWarning10s(let duration):
             return try CHHapticPattern(events: EducationalHapticPatterns.timeWarning10s(duration: duration), parameters: [])
-        }
-    }
-    
-    private func getProductivityPattern(_ pattern: ProductivityHaptic) throws -> CHHapticPattern {
-        switch pattern {
+        case .heartBeats(let count, let durationPerBeat):
+            return try CHHapticPattern(events: WellnessHapticPatterns.heartbeatsEvents(count: count, durationPerBeat: durationPerBeat), parameters: [])
+            
+        // MARK: Productivity Patterns
         case .timerComplete(let duration):
             return try CHHapticPattern(events: ProductivityHapticPatterns.timerCompleteEvents(duration: duration),
                                       parameterCurves: ProductivityHapticPatterns.timerCompleteCurves(duration: duration))
@@ -819,13 +718,10 @@ extension HapticOption {
             return try CHHapticPattern(events: ProductivityHapticPatterns.focusStart(duration: duration), parameters: [])
         case .breakReminder(let duration):
             return try CHHapticPattern(events: ProductivityHapticPatterns.breakReminder(duration: duration), parameters: [])
-        case .focusReminder(let duration):
+        case .productivityFocusReminder(let duration):
             return try CHHapticPattern(events: ProductivityHapticPatterns.focusReminder(duration: duration), parameters: [])
-        }
-    }
-    
-    private func getFinancePattern(_ pattern: FinanceHaptic) throws -> CHHapticPattern {
-        switch pattern {
+            
+        // MARK: Finance Patterns
         case .paymentSuccess(let duration):
             return try CHHapticPattern(events: FinanceHapticPatterns.paymentSuccess(duration: duration), parameters: [])
         case .paymentProcessing(let duration):
@@ -835,11 +731,8 @@ extension HapticOption {
             return try CHHapticPattern(events: FinanceHapticPatterns.transactionAlert(duration: duration), parameters: [])
         case .receiptSaved(let duration):
             return try CHHapticPattern(events: FinanceHapticPatterns.receiptSaved(duration: duration), parameters: [])
-        }
-    }
-    
-    private func getEmotionalPattern(_ pattern: EmotionalHaptic) throws -> CHHapticPattern {
-        switch pattern {
+            
+        // MARK: Emotional Patterns
         case .excitementBuild(let duration):
             return try CHHapticPattern(events: EmotionalHapticPatterns.excitementBuildEvents(duration: duration),
                                       parameterCurves: EmotionalHapticPatterns.excitementBuildCurves(duration: duration))
@@ -853,11 +746,8 @@ extension HapticOption {
         case .anticipation(let duration):
             return try CHHapticPattern(events: EmotionalHapticPatterns.anticipation(duration: duration),
                                       parameterCurves: EmotionalHapticPatterns.anticipationCurves(duration: duration))
-        }
-    }
-    
-    private func getIntenseGamificationPattern(_ pattern: IntenseGamificationHaptic) throws -> CHHapticPattern {
-        switch pattern {
+            
+        // MARK: Intense Gamification Patterns
         case .fireBurst(let duration):
             return try CHHapticPattern(events: IntenseGamificationHapticPatterns.fireBurstEvents(duration: duration),
                                       parameterCurves: IntenseGamificationHapticPatterns.fireBurstCurves(duration: duration))
@@ -876,10 +766,10 @@ extension HapticOption {
         case .meteorImpact(let duration):
             return try CHHapticPattern(events: IntenseGamificationHapticPatterns.meteorImpactEvents(duration: duration),
                                       parameterCurves: IntenseGamificationHapticPatterns.meteorImpactCurves(duration: duration))
-        case .earthquake(let duration):
+        case .intenseEarthquake(let duration):
             return try CHHapticPattern(events: IntenseGamificationHapticPatterns.earthquakeEvents(duration: duration),
                                       parameterCurves: IntenseGamificationHapticPatterns.earthquakeCurves(duration: duration))
-        case .tornado(let duration):
+        case .intenseTornado(let duration):
             return try CHHapticPattern(events: IntenseGamificationHapticPatterns.tornadoEvents(duration: duration),
                                       parameterCurves: IntenseGamificationHapticPatterns.tornadoCurves(duration: duration))
         case .plasmaCharge(let duration):
@@ -933,18 +823,6 @@ extension HapticOption {
         case .divineIntervention(let duration):
             return try CHHapticPattern(events: IntenseGamificationHapticPatterns.divineInterventionEvents(duration: duration),
                                       parameterCurves: IntenseGamificationHapticPatterns.divineInterventionCurves(duration: duration))
-        case .invincibilityActivation(let duration):
-            return try CHHapticPattern(events: IntenseGamificationHapticPatterns.invincibilityActivationEvents(duration: duration),
-                                      parameterCurves: IntenseGamificationHapticPatterns.invincibilityActivationCurves(duration: duration))
-        case .timeFreeze(let duration):
-            return try CHHapticPattern(events: IntenseGamificationHapticPatterns.timeFreezeEvents(duration: duration),
-                                      parameterCurves: IntenseGamificationHapticPatterns.timeFreezeCurves(duration: duration))
-        case .ultraCombo(let duration):
-            return try CHHapticPattern(events: IntenseGamificationHapticPatterns.ultraComboEvents(duration: duration),
-                                      parameterCurves: IntenseGamificationHapticPatterns.ultraComboCurves(duration: duration))
-        case .nuclearCharge(let duration):
-            return try CHHapticPattern(events: IntenseGamificationHapticPatterns.nuclearChargeEvents(duration: duration),
-                                      parameterCurves: IntenseGamificationHapticPatterns.nuclearChargeCurves(duration: duration))
         case .megaBoost(let duration):
             return try CHHapticPattern(events: IntenseGamificationHapticPatterns.megaBoostEvents(duration: duration),
                                       parameterCurves: IntenseGamificationHapticPatterns.megaBoostCurves(duration: duration))
@@ -957,6 +835,40 @@ extension HapticOption {
         case .divineShield(let duration):
             return try CHHapticPattern(events: IntenseGamificationHapticPatterns.divineShieldEvents(duration: duration),
                                       parameterCurves: IntenseGamificationHapticPatterns.divineShieldCurves(duration: duration))
+        case .invincibilityActivation(let duration):
+            return try CHHapticPattern(events: IntenseGamificationHapticPatterns.invincibilityActivationEvents(duration: duration),
+                                      parameterCurves: IntenseGamificationHapticPatterns.invincibilityActivationCurves(duration: duration))
+        case .timeFreeze(let duration):
+            return try CHHapticPattern(events: IntenseGamificationHapticPatterns.timeFreezeEvents(duration: duration),
+                                      parameterCurves: IntenseGamificationHapticPatterns.timeFreezeCurves(duration: duration))
+        case .ultraCombo(let duration):
+            return try CHHapticPattern(events: IntenseGamificationHapticPatterns.ultraComboEvents(duration: duration),
+                                      parameterCurves: IntenseGamificationHapticPatterns.ultraComboCurves(duration: duration))
+        case .nuclearCharge(let duration):
+            return try CHHapticPattern(events: IntenseGamificationHapticPatterns.nuclearChargeEvents(duration: duration),
+                                      parameterCurves: IntenseGamificationHapticPatterns.nuclearChargeCurves(duration: duration))
+            
+        // MARK: Ratings & Feedback Patterns
+        case .starRating1(let duration):
+            return try CHHapticPattern(events: RatingsFeedbackHapticPatterns.starRating1(duration: duration), parameters: [])
+        case .starRating3(let duration):
+            return try CHHapticPattern(events: RatingsFeedbackHapticPatterns.starRating3(duration: duration), parameters: [])
+        case .starRating5(let duration):
+            return try CHHapticPattern(events: RatingsFeedbackHapticPatterns.starRating5(duration: duration), parameters: [])
+        case .socialNotification(let notificationType, let duration):
+            return try CHHapticPattern(events: RatingsFeedbackHapticPatterns.socialNotification(notificationType: notificationType, duration: duration), parameters: [])
+            
+        // MARK: Tools & Writing Patterns
+        case .pencilWrite:
+            return try CHHapticPattern(events: ToolsWritingHapticPatterns.pencilWrite(), parameters: [])
+        case .eraserUse:
+            return try CHHapticPattern(events: ToolsWritingHapticPatterns.eraserUse(), parameters: [])
+            
+        // MARK: Custom Patterns
+        case .custom(let events, let parameters):
+            return try CHHapticPattern(events: events, parameters: parameters)
+        case .customCurve(let events, let parameterCurves):
+            return try CHHapticPattern(events: events, parameterCurves: parameterCurves)
         }
     }
 }
@@ -965,39 +877,18 @@ extension HapticOption {
 extension HapticOption {
     public var rawValue: String {
         switch self {
-        case .basic(let pattern):
-            return "basic.\(pattern.rawValue)"
-        case .gaming(let pattern):
-            return "gaming.\(getGamingRawValue(pattern))"
-        case .educational(let pattern):
-            return "educational.\(getEducationalRawValue(pattern))"
-        case .uiInteraction(let pattern):
-            return "uiInteraction.\(getUIInteractionRawValue(pattern))"
-        case .specialEffect(let pattern):
-            return "specialEffect.\(getSpecialEffectRawValue(pattern))"
-        case .wellness(let pattern):
-            return "wellness.\(getWellnessRawValue(pattern))"
-        case .productivity(let pattern):
-            return "productivity.\(getProductivityRawValue(pattern))"
-        case .finance(let pattern):
-            return "finance.\(getFinanceRawValue(pattern))"
-        case .emotional(let pattern):
-            return "emotional.\(getEmotionalRawValue(pattern))"
-        case .intenseGamification(let pattern):
-            return "intenseGamification.\(getIntenseGamificationRawValue(pattern))"
-        case .ratingsFeedback(let pattern):
-            return "ratingsFeedback.\(getRatingsFeedbackRawValue(pattern))"
-        case .toolsWriting(let pattern):
-            return "toolsWriting.\(getToolsWritingRawValue(pattern))"
-        case .custom:
-            return "custom"
-        case .customCurve:
-            return "customCurve"
-        }
-    }
-    
-    private func getGamingRawValue(_ pattern: GamingHaptic) -> String {
-        switch pattern {
+        // Basic
+        case .selection: return "selection"
+        case .soft: return "soft"
+        case .rigid: return "rigid"
+        case .light: return "light"
+        case .medium: return "medium"
+        case .heavy: return "heavy"
+        case .success: return "success"
+        case .error: return "error"
+        case .warning: return "warning"
+            
+        // Gaming
         case .lightningStrikeQuick: return "lightningStrikeQuick"
         case .lightningStrikeChain: return "lightningStrikeChain"
         case .lightningStrikeHeavy: return "lightningStrikeHeavy"
@@ -1023,11 +914,8 @@ extension HapticOption {
         case .drums: return "drums"
         case .cascade: return "cascade"
         case .elasticBounce: return "elasticBounce"
-        }
-    }
-    
-    private func getEducationalRawValue(_ pattern: EducationalHaptic) -> String {
-        switch pattern {
+            
+        // Educational
         case .achievementUnlocked: return "achievementUnlocked"
         case .levelUp: return "levelUp"
         case .starRating: return "starRating"
@@ -1070,7 +958,7 @@ extension HapticOption {
         case .partialCredit: return "partialCredit"
         case .tryAgainEncouragement: return "tryAgainEncouragement"
         case .learningProgress: return "learningProgress"
-        case .focusReminder: return "focusReminder"
+        case .educationalFocusReminder: return "educationalFocusReminder"
         case .flashcardFlip: return "flashcardFlip"
         case .quizStart: return "quizStart"
         case .xpGainSmall: return "xpGainSmall"
@@ -1085,6 +973,9 @@ extension HapticOption {
         case .rewardUnlock: return "rewardUnlock"
         case .progressBarFill: return "progressBarFill"
         case .progressBarFilling: return "progressBarFilling"
+        case .progress25: return "progress25"
+        case .progress50: return "progress50"
+        case .progress75: return "progress75"
         case .dailyGoalCheckpoint: return "dailyGoalCheckpoint"
         case .leagueAdvancement: return "leagueAdvancement"
         case .crownGemCollection: return "crownGemCollection"
@@ -1092,24 +983,18 @@ extension HapticOption {
         case .challengeCompletion: return "challengeCompletion"
         case .lessonPathProgress: return "lessonPathProgress"
         case .socialFeatureNotification: return "socialFeatureNotification"
-        case .streakBuilding: return "streakBuilding"
         case .comboMultiplier: return "comboMultiplier"
-        case .progress25: return "progress25"
-        case .progress50: return "progress50"
-        case .progress75: return "progress75"
         case .streakRiskWarning: return "streakRiskWarning"
         case .streakLost: return "streakLost"
+        case .streakBuilding: return "streakBuilding"
         case .streakMilestone5: return "streakMilestone5"
         case .streakMilestone7Days: return "streakMilestone7Days"
         case .streakMilestone10: return "streakMilestone10"
         case .streakMilestone25: return "streakMilestone25"
         case .streakMilestone30Days: return "streakMilestone30Days"
         case .streakMilestone100Days: return "streakMilestone100Days"
-        }
-    }
-    
-    private func getUIInteractionRawValue(_ pattern: UIInteractionHaptic) -> String {
-        switch pattern {
+            
+        // UI Interaction
         case .doubleTapLike: return "doubleTapLike"
         case .messageSent: return "messageSent"
         case .notificationPop: return "notificationPop"
@@ -1151,14 +1036,11 @@ extension HapticOption {
         case .contextualMenu: return "contextualMenu"
         case .sliderValueChange: return "sliderValueChange"
         case .pop: return "pop"
-        }
-    }
-    
-    private func getSpecialEffectRawValue(_ pattern: SpecialEffectHaptic) -> String {
-        switch pattern {
+            
+        // Special Effect
         case .magicSparkle: return "magicSparkle"
         case .waterDrop: return "waterDrop"
-        case .earthquake: return "earthquake"
+        case .specialEarthquake: return "specialEarthquake"
         case .laserBeam: return "laserBeam"
         case .typewriter: return "typewriter"
         case .heartbeat: return "heartbeat"
@@ -1168,11 +1050,8 @@ extension HapticOption {
         case .boing: return "boing"
         case .inflate: return "inflate"
         case .oscillate: return "oscillate"
-        }
-    }
-    
-    private func getWellnessRawValue(_ pattern: WellnessHaptic) -> String {
-        switch pattern {
+            
+        // Wellness
         case .breathingGuide: return "breathingGuide"
         case .calmPulse: return "calmPulse"
         case .meditationBell: return "meditationBell"
@@ -1181,44 +1060,36 @@ extension HapticOption {
         case .timeWarning30s: return "timeWarning30s"
         case .timeWarning10s: return "timeWarning10s"
         case .heartBeats: return "heartBeats"
-        }
-    }
-    
-    private func getProductivityRawValue(_ pattern: ProductivityHaptic) -> String {
-        switch pattern {
+            
+        // Productivity
         case .timerComplete: return "timerComplete"
         case .taskCheck: return "taskCheck"
         case .focusStart: return "focusStart"
         case .breakReminder: return "breakReminder"
-        case .focusReminder: return "focusReminder"
-        }
-    }
-    
-    private func getFinanceRawValue(_ pattern: FinanceHaptic) -> String {
-        switch pattern {
+        case .productivityFocusReminder: return "productivityFocusReminder"
+            
+        // Finance
         case .paymentSuccess: return "paymentSuccess"
         case .paymentProcessing: return "paymentProcessing"
         case .transactionAlert: return "transactionAlert"
         case .receiptSaved: return "receiptSaved"
-        }
-    }
-    
-    private func getEmotionalRawValue(_ pattern: EmotionalHaptic) -> String {
-        switch pattern {
+            
+        // Emotional
         case .excitementBuild: return "excitementBuild"
         case .disappointment: return "disappointment"
         case .surprise: return "surprise"
         case .joy: return "joy"
         case .anticipation: return "anticipation"
-        }
-    }
-    
-    private func getIntenseGamificationRawValue(_ pattern: IntenseGamificationHaptic) -> String {
-        switch pattern {
+            
+        // Intense Gamification
         case .fireBurst: return "fireBurst"
         case .iceShard: return "iceShard"
         case .earthquakeRumble: return "earthquakeRumble"
         case .windTornado: return "windTornado"
+        case .thunderStorm: return "thunderStorm"
+        case .meteorImpact: return "meteorImpact"
+        case .intenseEarthquake: return "intenseEarthquake"
+        case .intenseTornado: return "intenseTornado"
         case .plasmaCharge: return "plasmaCharge"
         case .gravityWell: return "gravityWell"
         case .photonBlast: return "photonBlast"
@@ -1233,59 +1104,31 @@ extension HapticOption {
         case .titanSmash: return "titanSmash"
         case .dimensionalRift: return "dimensionalRift"
         case .volcanicEruption: return "volcanicEruption"
+        case .titanStomp: return "titanStomp"
+        case .phoenixRebirth: return "phoenixRebirth"
+        case .divineIntervention: return "divineIntervention"
         case .megaBoost: return "megaBoost"
         case .starPower: return "starPower"
         case .berserkerRage: return "berserkerRage"
         case .divineShield: return "divineShield"
-        case .thunderStorm: return "thunderStorm"
-        case .meteorImpact: return "meteorImpact"
-        case .earthquake: return "earthquake"
-        case .tornado: return "tornado"
-        case .titanStomp: return "titanStomp"
-        case .phoenixRebirth: return "phoenixRebirth"
-        case .divineIntervention: return "divineIntervention"
         case .invincibilityActivation: return "invincibilityActivation"
         case .timeFreeze: return "timeFreeze"
         case .ultraCombo: return "ultraCombo"
         case .nuclearCharge: return "nuclearCharge"
-        }
-    }
-    
-    private func getRatingsFeedbackPattern(_ pattern: RatingsFeedbackHaptic) throws -> CHHapticPattern {
-        switch pattern {
-        case .starRating1(let duration):
-            return try CHHapticPattern(events: RatingsFeedbackHapticPatterns.starRating1(duration: duration), parameters: [])
-        case .starRating3(let duration):
-            return try CHHapticPattern(events: RatingsFeedbackHapticPatterns.starRating3(duration: duration), parameters: [])
-        case .starRating5(let duration):
-            return try CHHapticPattern(events: RatingsFeedbackHapticPatterns.starRating5(duration: duration), parameters: [])
-        case .socialNotification(let notificationType, let duration):
-            return try CHHapticPattern(events: RatingsFeedbackHapticPatterns.socialNotification(notificationType: notificationType, duration: duration), parameters: [])
-        }
-    }
-    
-    private func getToolsWritingPattern(_ pattern: ToolsWritingHaptic) throws -> CHHapticPattern {
-        switch pattern {
-        case .pencilWrite:
-            return try CHHapticPattern(events: ToolsWritingHapticPatterns.pencilWrite(), parameters: [])
-        case .eraserUse:
-            return try CHHapticPattern(events: ToolsWritingHapticPatterns.eraserUse(), parameters: [])
-        }
-    }
-    
-    private func getRatingsFeedbackRawValue(_ pattern: RatingsFeedbackHaptic) -> String {
-        switch pattern {
+            
+        // Ratings & Feedback
         case .starRating1: return "starRating1"
         case .starRating3: return "starRating3"
         case .starRating5: return "starRating5"
         case .socialNotification: return "socialNotification"
-        }
-    }
-    
-    private func getToolsWritingRawValue(_ pattern: ToolsWritingHaptic) -> String {
-        switch pattern {
+            
+        // Tools & Writing
         case .pencilWrite: return "pencilWrite"
         case .eraserUse: return "eraserUse"
+            
+        // Custom
+        case .custom: return "custom"
+        case .customCurve: return "customCurve"
         }
     }
 }

@@ -98,59 +98,57 @@ public final actor HapticManager {
     // Create engine if needed, then prepare engine if needed.
     private func setUpAndPrepareForHaptic(option: HapticOption) async {
         switch option {
-        case .basic(let basicHaptic):
-            switch basicHaptic {
-            case .light:
-                await MainActor.run {
-                    if lightGenerator == nil {
-                        lightGenerator = UIImpactFeedbackGenerator(style: .light)
-                    }
-                    lightGenerator?.prepare()
+        case .light:
+            await MainActor.run {
+                if lightGenerator == nil {
+                    lightGenerator = UIImpactFeedbackGenerator(style: .light)
                 }
-            case .medium:
-                await MainActor.run {
-                    if mediumGenerator == nil {
-                        mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
-                    }
-                    mediumGenerator?.prepare()
-                }
-            case .heavy:
-                await MainActor.run {
-                    if heavyGenerator == nil {
-                        heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
-                    }
-                    heavyGenerator?.prepare()
-                }
-            case .soft:
-                await MainActor.run {
-                    if softGenerator == nil {
-                        softGenerator = UIImpactFeedbackGenerator(style: .soft)
-                    }
-                    softGenerator?.prepare()
-                }
-            case .rigid:
-                await MainActor.run {
-                    if rigidGenerator == nil {
-                        rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
-                    }
-                    rigidGenerator?.prepare()
-                }
-            case .success, .error, .warning:
-                await MainActor.run {
-                    if notificationGenerator == nil {
-                        notificationGenerator = UINotificationFeedbackGenerator()
-                    }
-                    notificationGenerator?.prepare()
-                }
-            case .selection:
-                await MainActor.run {
-                    if selectionGenerator == nil {
-                        selectionGenerator = UISelectionFeedbackGenerator()
-                    }
-                    selectionGenerator?.prepare()
-                }
+                lightGenerator?.prepare()
             }
-        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .ratingsFeedback, .toolsWriting, .custom, .customCurve:
+        case .medium:
+            await MainActor.run {
+                if mediumGenerator == nil {
+                    mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
+                }
+                mediumGenerator?.prepare()
+            }
+        case .heavy:
+            await MainActor.run {
+                if heavyGenerator == nil {
+                    heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
+                }
+                heavyGenerator?.prepare()
+            }
+        case .soft:
+            await MainActor.run {
+                if softGenerator == nil {
+                    softGenerator = UIImpactFeedbackGenerator(style: .soft)
+                }
+                softGenerator?.prepare()
+            }
+        case .rigid:
+            await MainActor.run {
+                if rigidGenerator == nil {
+                    rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
+                }
+                rigidGenerator?.prepare()
+            }
+        case .success, .error, .warning:
+            await MainActor.run {
+                if notificationGenerator == nil {
+                    notificationGenerator = UINotificationFeedbackGenerator()
+                }
+                notificationGenerator?.prepare()
+            }
+        case .selection:
+            await MainActor.run {
+                if selectionGenerator == nil {
+                    selectionGenerator = UISelectionFeedbackGenerator()
+                }
+                selectionGenerator?.prepare()
+            }
+        default:
+            // All other haptics use the custom engine
             if customEngine == nil {
                 await setUpAndPrepareCustomHapticEngine()
             }
@@ -159,79 +157,77 @@ public final actor HapticManager {
     
     private func trigger(option: HapticOption) async {
         switch option {
-        case .basic(let basicHaptic):
-            switch basicHaptic {
-            case .light:
-                await MainActor.run {
-                    if lightGenerator == nil {
-                        lightGenerator = UIImpactFeedbackGenerator(style: .light)
-                    }
-                    if let lightGenerator {
-                        lightGenerator.impactOccurred()
-                    }
+        case .light:
+            await MainActor.run {
+                if lightGenerator == nil {
+                    lightGenerator = UIImpactFeedbackGenerator(style: .light)
                 }
-            case .medium:
-                await MainActor.run {
-                    if mediumGenerator == nil {
-                        mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
-                    }
-                    mediumGenerator?.impactOccurred()
-                }
-            case .heavy:
-                await MainActor.run {
-                    if heavyGenerator == nil {
-                        heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
-                    }
-                    heavyGenerator?.impactOccurred()
-                }
-            case .soft:
-                await MainActor.run {
-                    if softGenerator == nil {
-                        softGenerator = UIImpactFeedbackGenerator(style: .soft)
-                    }
-                    softGenerator?.impactOccurred()
-                }
-            case .rigid:
-                await MainActor.run {
-                    if rigidGenerator == nil {
-                        rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
-                    }
-                    rigidGenerator?.impactOccurred()
-                }
-            case .success:
-                await MainActor.run {
-                    if notificationGenerator == nil {
-                        notificationGenerator = UINotificationFeedbackGenerator()
-                    }
-                    notificationGenerator?.notificationOccurred(.success)
-                }
-            case .warning:
-                await MainActor.run {
-                    if notificationGenerator == nil {
-                        notificationGenerator = UINotificationFeedbackGenerator()
-                    }
-                    notificationGenerator?.notificationOccurred(.warning)
-                }
-            case .error:
-                await MainActor.run {
-                    if notificationGenerator == nil {
-                        notificationGenerator = UINotificationFeedbackGenerator()
-                    }
-                    notificationGenerator?.notificationOccurred(.error)
-                }
-            case .selection:
-                await MainActor.run {
-                    if selectionGenerator == nil {
-                        selectionGenerator = UISelectionFeedbackGenerator()
-                    }
-                    selectionGenerator?.selectionChanged()
+                if let lightGenerator {
+                    lightGenerator.impactOccurred()
                 }
             }
-        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .ratingsFeedback, .toolsWriting, .custom, .customCurve:
+        case .medium:
+            await MainActor.run {
+                if mediumGenerator == nil {
+                    mediumGenerator = UIImpactFeedbackGenerator(style: .medium)
+                }
+                mediumGenerator?.impactOccurred()
+            }
+        case .heavy:
+            await MainActor.run {
+                if heavyGenerator == nil {
+                    heavyGenerator = UIImpactFeedbackGenerator(style: .heavy)
+                }
+                heavyGenerator?.impactOccurred()
+            }
+        case .soft:
+            await MainActor.run {
+                if softGenerator == nil {
+                    softGenerator = UIImpactFeedbackGenerator(style: .soft)
+                }
+                softGenerator?.impactOccurred()
+            }
+        case .rigid:
+            await MainActor.run {
+                if rigidGenerator == nil {
+                    rigidGenerator = UIImpactFeedbackGenerator(style: .rigid)
+                }
+                rigidGenerator?.impactOccurred()
+            }
+        case .success:
+            await MainActor.run {
+                if notificationGenerator == nil {
+                    notificationGenerator = UINotificationFeedbackGenerator()
+                }
+                notificationGenerator?.notificationOccurred(.success)
+            }
+        case .warning:
+            await MainActor.run {
+                if notificationGenerator == nil {
+                    notificationGenerator = UINotificationFeedbackGenerator()
+                }
+                notificationGenerator?.notificationOccurred(.warning)
+            }
+        case .error:
+            await MainActor.run {
+                if notificationGenerator == nil {
+                    notificationGenerator = UINotificationFeedbackGenerator()
+                }
+                notificationGenerator?.notificationOccurred(.error)
+            }
+        case .selection:
+            await MainActor.run {
+                if selectionGenerator == nil {
+                    selectionGenerator = UISelectionFeedbackGenerator()
+                }
+                selectionGenerator?.selectionChanged()
+            }
+        default:
+            // All other haptics use CoreHaptics patterns
             if !customEngineIsRunning {
                 await setUpAndPrepareCustomHapticEngine()
             }
-            
+
             do {
                 let pattern = try option.getCustomPattern()
                 let player = try customEngine?.makePlayer(with: pattern)
@@ -244,38 +240,36 @@ public final actor HapticManager {
     
     private func removeEngineFromMemory(option: HapticOption) async {
         switch option {
-        case .basic(let basicHaptic):
-            switch basicHaptic {
-            case .light:
-                await MainActor.run {
-                    lightGenerator = nil
-                }
-            case .medium:
-                await MainActor.run {
-                    mediumGenerator = nil
-                }
-            case .heavy:
-                await MainActor.run {
-                    heavyGenerator = nil
-                }
-            case .soft:
-                await MainActor.run {
-                    softGenerator = nil
-                }
-            case .rigid:
-                await MainActor.run {
-                    rigidGenerator = nil
-                }
-            case .success, .error, .warning:
-                await MainActor.run {
-                    notificationGenerator = nil
-                }
-            case .selection:
-                await MainActor.run {
-                    selectionGenerator = nil
-                }
+        case .light:
+            await MainActor.run {
+                lightGenerator = nil
             }
-        case .gaming, .educational, .uiInteraction, .specialEffect, .wellness, .productivity, .finance, .emotional, .intenseGamification, .ratingsFeedback, .toolsWriting, .custom, .customCurve:
+        case .medium:
+            await MainActor.run {
+                mediumGenerator = nil
+            }
+        case .heavy:
+            await MainActor.run {
+                heavyGenerator = nil
+            }
+        case .soft:
+            await MainActor.run {
+                softGenerator = nil
+            }
+        case .rigid:
+            await MainActor.run {
+                rigidGenerator = nil
+            }
+        case .success, .error, .warning:
+            await MainActor.run {
+                notificationGenerator = nil
+            }
+        case .selection:
+            await MainActor.run {
+                selectionGenerator = nil
+            }
+        default:
+            // All other haptics use the custom engine
             do {
                 try await customEngine?.stop()
                 customEngine = nil
