@@ -1,5 +1,5 @@
 //
-//  AuthLogger.swift
+//  HapticLogger.swift
 //  SwiftfulHaptics
 //
 //  Created by Nicholas Sarno on 12/18/24.
