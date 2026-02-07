@@ -22,14 +22,14 @@ public final actor HapticManager {
     }
     
     // MARK: PREPARE
-        
-    public nonisolated func prepare(option: HapticOption) {
+
+    public nonisolated func prepareHaptic(option: HapticOption) {
         Task {
             await self.setUpAndPrepareForHaptic(option: option)
         }
     }
 
-    public nonisolated func prepare(options: [HapticOption]) {
+    public nonisolated func prepareHaptics(options: [HapticOption]) {
         Task {
             await withTaskGroup(of: Void.self) { group in
                 for option in options {
@@ -37,21 +37,21 @@ public final actor HapticManager {
                         await self.setUpAndPrepareForHaptic(option: option)
                     }
                 }
-                
+
                 await group.waitForAll()
             }
         }
     }
-    
+
     // MARK: TEAR DOWN
-    
-    public nonisolated func tearDown(option: HapticOption) {
+
+    public nonisolated func tearDownHaptic(option: HapticOption) {
         Task {
             await removeEngineFromMemory(option: option)
         }
     }
 
-    public nonisolated func tearDown(options: [HapticOption]) {
+    public nonisolated func tearDownHaptics(options: [HapticOption]) {
         Task {
             await withTaskGroup(of: Void.self) { group in
                 for option in options {
@@ -59,27 +59,27 @@ public final actor HapticManager {
                         await self.removeEngineFromMemory(option: option)
                     }
                 }
-                
+
                 await group.waitForAll()
             }
         }
     }
-        
-    public nonisolated func tearDownAll() {
+
+    public nonisolated func tearDownAllHaptics() {
         Task {
             await removeAllEnginesFromMemory()
         }
     }
-        
+
     // MARK: PLAY
-    
-    public nonisolated func play(option: HapticOption) {
+
+    public nonisolated func playHaptic(option: HapticOption) {
         Task {
             await trigger(option: option)
         }
     }
-        
-    public nonisolated func play(options: [HapticOption]) {
+
+    public nonisolated func playHaptics(options: [HapticOption]) {
         Task {
             await withTaskGroup(of: Void.self) { group in
                 for option in options {
@@ -87,7 +87,7 @@ public final actor HapticManager {
                         await self.trigger(option: option)
                     }
                 }
-                
+
                 await group.waitForAll()
             }
         }

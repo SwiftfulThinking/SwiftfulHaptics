@@ -54,22 +54,22 @@ let hapticManager = HapticManager(logger: yourLogger)
 Just play a haptic — no preparation needed.
 
 ```swift
-hapticManager.play(option: .success)
-hapticManager.play(option: .explosionMassive())
-hapticManager.play(option: .doubleTapLike())
+hapticManager.playHaptic(option: .success)
+hapticManager.playHaptic(option: .explosionMassive())
+hapticManager.playHaptic(option: .doubleTapLike())
 ```
 
 For better performance, prepare haptics before playing them.
 
 ```swift
 // Prepare on screen appear
-hapticManager.prepare(option: .coinCollectSingle())
+hapticManager.prepareHaptic(option: .coinCollectSingle())
 
 // Play when needed
-hapticManager.play(option: .coinCollectSingle())
+hapticManager.playHaptic(option: .coinCollectSingle())
 
 // Clean up when done
-hapticManager.tearDown(option: .coinCollectSingle())
+hapticManager.tearDownHaptic(option: .coinCollectSingle())
 ```
 
 </details>
@@ -84,32 +84,32 @@ All public methods are **synchronous** (`nonisolated`) with async behavior handl
 
 ```swift
 // Preparation (optional - improves first-play latency)
-func prepare(option: HapticOption)
-func prepare(options: [HapticOption])
+func prepareHaptic(option: HapticOption)
+func prepareHaptics(options: [HapticOption])
 
 // Playback
-func play(option: HapticOption)
-func play(options: [HapticOption])
+func playHaptic(option: HapticOption)
+func playHaptics(options: [HapticOption])
 
 // Memory management (optional)
-func tearDown(option: HapticOption)
-func tearDown(options: [HapticOption])
-func tearDownAll()
+func tearDownHaptic(option: HapticOption)
+func tearDownHaptics(options: [HapticOption])
+func tearDownAllHaptics()
 ```
 
 ### When to Use Each Method
 
-**`prepare()`** — Optional performance optimization
+**`prepareHaptic()`** — Optional performance optimization
 - Pre-initializes feedback generators or CoreHaptics engine
 - Reduces first-play latency
 - Best practice: call during screen appear for haptics you expect to use
 
-**`play()`** — Core functionality
+**`playHaptic()`** — Core functionality
 - Creates generators on-demand if not prepared
 - Thread-safe: can be called from any context
 - Multiple haptics can play simultaneously
 
-**`tearDown()`** — Optional memory management
+**`tearDownHaptic()`** — Optional memory management
 - Frees generators and engine resources
 - Best practice: call during screen disappear or memory warnings
 
@@ -619,7 +619,7 @@ let hapticManager = HapticManager(logger: logManager)
 <br>
 
 1. **Prepare frequently-used haptics** during screen appear
-2. **Use tearDown()** during screen disappear or memory warnings
+2. **Use tearDownHaptic()** during screen disappear or memory warnings
 3. **Basic haptics** (`.light`, `.medium`, `.success`, etc.) have the lowest latency
 4. **Custom haptics** require CoreHaptics engine initialization (higher latency on first use)
 5. **Batch operations** can prepare or play multiple haptics at once
