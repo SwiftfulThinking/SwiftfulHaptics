@@ -1038,4 +1038,24 @@ struct UIInteractionHapticPatterns {
         
         return [valueStep]
     }
+
+    static func softTick(duration: Double) -> [CHHapticEvent] {
+        // Fine ratchet feeling
+        var events: [CHHapticEvent] = []
+        let tickCount = 5
+
+        for i in 0..<tickCount {
+            let tickTime = Double(i) * (duration / Double(tickCount))
+            let tickIntensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: Float(0.25))
+            let tickSharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: Float(0.9))
+            let tick = CHHapticEvent(
+                eventType: .hapticTransient,
+                parameters: [tickIntensity, tickSharpness],
+                relativeTime: tickTime
+            )
+            events.append(tick)
+        }
+
+        return events
+    }
 }
