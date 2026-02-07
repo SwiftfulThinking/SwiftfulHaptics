@@ -5,10 +5,10 @@ Actor-based haptic feedback library. 200+ patterns as a flat `HapticOption` enum
 ## API
 
 - `HapticManager` is an `actor` but all public methods are `nonisolated` — no `await` needed
-- `play(option:)` fires a haptic immediately; creates the generator on-demand if not prepared
-- `prepare(option:)` pre-initializes the generator for lower first-play latency
-- `tearDown(option:)` frees the generator; `tearDownAll()` frees everything
-- Batch variants: `play(options:)`, `prepare(options:)`, `tearDown(options:)` accept arrays
+- `playHaptic(option:)` fires a haptic immediately; creates the generator on-demand if not prepared
+- `prepareHaptic(option:)` pre-initializes the generator for lower first-play latency
+- `tearDownHaptic(option:)` frees the generator; `tearDownAllHaptics()` frees everything
+- Batch variants: `playHaptics(options:)`, `prepareHaptics(options:)`, `tearDownHaptics(options:)` accept arrays
 - Basic haptics (`.light`, `.medium`, `.success`, etc.) use UIKit generators — lowest latency
 - All other haptics use CoreHaptics engine — slightly higher latency on first use
 
@@ -23,34 +23,34 @@ let hapticManager = HapticManager(logger: yourLogger)
 
 ```swift
 // Single haptic
-hapticManager.play(option: .success)
-hapticManager.play(option: .levelUp())
+hapticManager.playHaptic(option: .success)
+hapticManager.playHaptic(option: .levelUp())
 
 // Multiple haptics simultaneously
-hapticManager.play(options: [.success, .celebrationBurst()])
+hapticManager.playHaptics(options: [.success, .celebrationBurst()])
 ```
 
 ### Prepare
 
 ```swift
 // Pre-initialize for lower latency on first play
-hapticManager.prepare(option: .light)
+hapticManager.prepareHaptic(option: .light)
 
 // Batch prepare
-hapticManager.prepare(options: [.light, .success, .coinCollectSingle()])
+hapticManager.prepareHaptics(options: [.light, .success, .coinCollectSingle()])
 ```
 
 ### Tear Down
 
 ```swift
 // Free a specific generator
-hapticManager.tearDown(option: .light)
+hapticManager.tearDownHaptic(option: .light)
 
 // Free multiple generators
-hapticManager.tearDown(options: [.light, .success])
+hapticManager.tearDownHaptics(options: [.light, .success])
 
 // Free all generators and the CoreHaptics engine
-hapticManager.tearDownAll()
+hapticManager.tearDownAllHaptics()
 ```
 
 ## Integration
@@ -102,7 +102,7 @@ Prepare haptics on screen appear for lower latency. Tear down is optional — on
 
 ```swift
 .onAppear {
-    hapticManager.prepare(options: [.light, .success])
+    hapticManager.prepareHaptics(options: [.light, .success])
 }
 ```
 
@@ -131,7 +131,11 @@ func onButtonTapped() {
 // Interactor — protocol that wraps HapticManager
 protocol GlobalInteractor {
     func prepareHaptic(option: HapticOption)
+    func prepareHaptics(options: [HapticOption])
     func playHaptic(option: HapticOption)
+    func playHaptics(options: [HapticOption])
     func tearDownHaptic(option: HapticOption)
+    func tearDownHaptics(options: [HapticOption])
+    func tearDownAllHaptics()
 }
 ```
