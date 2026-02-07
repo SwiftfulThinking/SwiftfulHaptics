@@ -131,7 +131,11 @@ func onButtonTapped() {
 // Interactor — protocol that wraps HapticManager
 protocol GlobalInteractor {
     func prepareHaptic(option: HapticOption)
+    func prepareHaptics(options: [HapticOption])
     func playHaptic(option: HapticOption)
+    func playHaptics(options: [HapticOption])
     func tearDownHaptic(option: HapticOption)
+    func tearDownHaptics(options: [HapticOption])
+    func tearDownAllHaptics()
 }
 ```
