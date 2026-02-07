@@ -1,57 +1,94 @@
 # SwiftfulHaptics 📳
 
-A comprehensive haptic feedback library for iOS, macOS, and tvOS applications. SwiftfulHaptics provides 147 pre-designed haptic patterns across 10 categories, from basic iOS haptics to complex gaming effects.
+A comprehensive haptic feedback library for iOS. SwiftfulHaptics provides 200+ pre-designed haptic patterns across 12 categories, from basic iOS haptics to complex CoreHaptics effects.
 
 Sample project: https://github.com/SwiftfulThinking/SwiftfulHapticsExample
 
 ## Features
 
-- **147 pre-designed haptic patterns** across 10 specialized categories
+- **200+ pre-designed haptic patterns** across 12 specialized categories
 - **Thread-safe actor-based design** with modern Swift concurrency
 - **Simple synchronous API** with async behavior internalized
+- **Flat enum** for easy autocomplete discovery
 - **Optional preparation** for reduced latency
 - **Memory management** with selective teardown
-- **Custom haptic support** for advanced patterns
+- **Custom haptic support** for advanced CoreHaptics patterns
 - **Optional logging** for analytics integration
 
 ## Setup
 
-Add SwiftfulHaptics to your project and import it:
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Add SwiftfulHaptics to your project.
+
+```
+https://github.com/SwiftfulThinking/SwiftfulHaptics.git
+```
+
+Import the package.
 
 ```swift
 import SwiftfulHaptics
+```
 
+Create a `HapticManager` instance.
+
+```swift
 // Basic setup
 let hapticManager = HapticManager()
 
 // With optional logger for analytics
-let hapticManager = HapticManager(logger: yourHapticLogger)
+let hapticManager = HapticManager(logger: yourLogger)
 ```
+
+</details>
 
 ## Quick Start
 
-The simplest way to use SwiftfulHaptics:
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Just play a haptic — no preparation needed.
 
 ```swift
-// Just play a haptic - no preparation needed
-hapticManager.play(option: .basic(.success))
-hapticManager.play(option: .gaming(.explosionMassive()))
-hapticManager.play(option: .uiInteraction(.doubleTapLike()))
+hapticManager.play(option: .success)
+hapticManager.play(option: .explosionMassive())
+hapticManager.play(option: .doubleTapLike())
 ```
+
+For better performance, prepare haptics before playing them.
+
+```swift
+// Prepare on screen appear
+hapticManager.prepare(option: .coinCollectSingle())
+
+// Play when needed
+hapticManager.play(option: .coinCollectSingle())
+
+// Clean up when done
+hapticManager.tearDown(option: .coinCollectSingle())
+```
+
+</details>
 
 ## API Reference
 
-### Core Methods
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
 
-All public methods are **synchronous** with async behavior handled internally:
+All public methods are **synchronous** (`nonisolated`) with async behavior handled internally.
 
 ```swift
-// Preparation (optional - improves first-play performance)
+// Preparation (optional - improves first-play latency)
 func prepare(option: HapticOption)
 func prepare(options: [HapticOption])
 
 // Playback
-func play(option: HapticOption)  
+func play(option: HapticOption)
 func play(options: [HapticOption])
 
 // Memory management (optional)
@@ -60,359 +97,548 @@ func tearDown(options: [HapticOption])
 func tearDownAll()
 ```
 
-### Usage Patterns
-
-#### Basic Usage
-```swift
-// Simple one-off haptics
-hapticManager.play(option: .basic(.heavy))
-hapticManager.play(option: .educational(.levelUp()))
-```
-
-#### Optimized Usage (Recommended for Frequent Haptics)
-```swift
-// Prepare frequently-used haptics for better performance
-hapticManager.prepare(option: .gaming(.explosionMassive()))
-hapticManager.prepare(options: [
-    .uiInteraction(.doubleTapLike()),
-    .basic(.selection),
-    .wellness(.heartBeats())
-])
-
-// Later, play with reduced latency
-hapticManager.play(option: .gaming(.explosionMassive()))
-```
-
-#### Batch Operations
-```swift
-// Play multiple haptics simultaneously
-hapticManager.play(options: [
-    .basic(.success),
-    .emotional(.joy()),
-    .specialEffect(.magicSparkle())
-])
-
-// Clean up when done (optional)
-hapticManager.tearDown(options: [
-    .gaming(.explosionMassive()),
-    .wellness(.heartBeats())
-])
-```
-
 ### When to Use Each Method
 
-#### `prepare()` - Optional Performance Optimization
-- **Use when**: You know which haptics will be played frequently
-- **Benefits**: Reduces first-play latency by pre-initializing engines
-- **Not required**: Haptics will still play without preparation
-- **Best practice**: Prepare during app startup or scene loading
+**`prepare()`** — Optional performance optimization
+- Pre-initializes feedback generators or CoreHaptics engine
+- Reduces first-play latency
+- Best practice: call during screen appear for haptics you expect to use
 
-#### `play()` - Core Functionality  
-- **Always works**: Creates engines on-demand if not prepared
-- **Thread-safe**: Can be called from any thread
-- **Concurrent**: Multiple haptics can play simultaneously
+**`play()`** — Core functionality
+- Creates generators on-demand if not prepared
+- Thread-safe: can be called from any context
+- Multiple haptics can play simultaneously
 
-#### `tearDown()` - Optional Memory Management
-- **Use when**: You want to free memory for unused haptics
-- **Automatic**: iOS will clean up engines as needed
-- **Best practice**: Call during memory warnings or scene cleanup
+**`tearDown()`** — Optional memory management
+- Frees generators and engine resources
+- Best practice: call during screen disappear or memory warnings
 
-## Complete Haptic Options (147 Total)
+</details>
 
-### Basic Haptics (9 options)
-Standard iOS feedback generators:
+## Basic Haptics (9)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Standard iOS feedback generators. No CoreHaptics engine required — lowest latency.
+
 ```swift
-.basic(.selection)       // UISelectionFeedbackGenerator
-.basic(.soft)           // UIImpactFeedbackGenerator
-.basic(.rigid)
-.basic(.light)  
-.basic(.medium)
-.basic(.heavy)
-.basic(.success)        // UINotificationFeedbackGenerator
-.basic(.error)
-.basic(.warning)
+// UISelectionFeedbackGenerator
+.selection
+
+// UIImpactFeedbackGenerator
+.soft
+.rigid
+.light
+.medium
+.heavy
+
+// UINotificationFeedbackGenerator
+.success
+.error
+.warning
 ```
 
-### Gaming Haptics (22 options)
-Designed for game interactions with customizable durations:
+</details>
+
+## Gaming Haptics (25)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+All gaming haptics use CoreHaptics and accept an optional `duration` parameter with sensible defaults.
 
 ```swift
 // Lightning Effects
-.gaming(.lightningStrikeQuick(duration: 0.3))      // Default: 0.3s
-.gaming(.lightningStrikeChain(duration: 1.2))      // Default: 1.2s  
-.gaming(.lightningStrikeHeavy(duration: 1.5))      // Default: 1.5s
+.lightningStrikeQuick(duration: 0.3)
+.lightningStrikeChain(duration: 1.2)
+.lightningStrikeHeavy(duration: 1.5)
 
 // Coin Collection
-.gaming(.coinCollectSingle(duration: 0.15))        // Default: 0.15s
-.gaming(.coinCollectMulti(duration: 0.8))          // Default: 0.8s
-.gaming(.coinCollectJackpot(duration: 2.0))        // Default: 2.0s
+.coinCollectSingle(duration: 0.15)
+.coinCollectMulti(duration: 0.8)
+.coinCollectJackpot(duration: 2.0)
 
 // Combat
-.gaming(.swordSlashLight(duration: 0.25))          // Default: 0.25s
-.gaming(.swordSlashHeavy(duration: 0.6))           // Default: 0.6s
-.gaming(.arrowRelease(duration: 0.5))              // Default: 0.5s
-.gaming(.explosionSmall(duration: 0.4))            // Default: 0.4s
-.gaming(.explosionMassive(duration: 1.8))          // Default: 1.8s
-.gaming(.shieldBlock(duration: 0.35))              // Default: 0.35s
-.gaming(.criticalHit(duration: 0.5))               // Default: 0.5s
-.gaming(.comboHit3x(duration: 0.8))                // Default: 0.8s
-.gaming(.comboHit5x(duration: 1.2))                // Default: 1.2s
+.swordSlashLight(duration: 0.25)
+.swordSlashHeavy(duration: 0.6)
+.arrowRelease(duration: 0.5)
+.shieldBlock(duration: 0.35)
+.criticalHit(duration: 0.5)
+.comboHit3x(duration: 0.8)
+.comboHit5x(duration: 1.2)
 
-// Movement & Effects  
-.gaming(.footstepGrass(duration: 0.2))             // Default: 0.2s
-.gaming(.footstepMetal(duration: 0.2))             // Default: 0.2s
-.gaming(.engineStart(duration: 2.0))               // Default: 2.0s
-.gaming(.turboBoost(duration: 1.5))                // Default: 1.5s
-.gaming(.portalEnter(duration: 0.8))               // Default: 0.8s
-.gaming(.magicCharge(duration: 1.0))               // Default: 1.0s
-.gaming(.machineGun(duration: 2.0))                // Default: 2.0s
-.gaming(.drums)                                     // No parameters
+// Explosions
+.explosionSmall(duration: 0.4)
+.explosionMassive(duration: 1.8)
+
+// Movement & Effects
+.footstepGrass(duration: 0.2)
+.footstepMetal(duration: 0.2)
+.engineStart(duration: 2.0)
+.turboBoost(duration: 1.5)
+.portalEnter(duration: 0.8)
+.magicCharge(duration: 1.0)
+.machineGun(duration: 2.0)
+.cascade(duration: 0.8)
+.elasticBounce(duration: 2.0)
+.drums
 ```
 
-### Educational Haptics (30 options)
-Perfect for learning apps and gamified education:
+</details>
+
+## Educational Haptics (77)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Designed for learning apps and gamified education.
+
+### Achievements
 
 ```swift
-// Achievements
-.educational(.achievementUnlocked(duration: 1.2))   // Default: 1.2s
-.educational(.levelUp(duration: 1.5))               // Default: 1.5s
-.educational(.starRating(count: 3, duration: 0.2))  // Default: count=3, duration=0.2s
-.educational(.badgeEarned(duration: 0.8))           // Default: 0.8s
-.educational(.streakMilestone(duration: 1.0))       // Default: 1.0s
-.educational(.perfectScore(duration: 2.0))          // Default: 2.0s
-.educational(.rankPromotion(duration: 1.5))         // Default: 1.5s
-.educational(.dailyGoalComplete(duration: 1.0))     // Default: 1.0s
-.educational(.trophyUnlock(duration: 1.8))          // Default: 1.8s
-.educational(.questComplete(duration: 1.5))         // Default: 1.5s
-.educational(.highScore(duration: 1.5))             // Default: 1.5s
-.educational(.masteryAchieved(duration: 2.0))       // Default: 2.0s
-
-// Learning Feedback
-.educational(.correctAnswer(duration: 0.3))         // Default: 0.3s
-.educational(.incorrectGentle(duration: 0.4))       // Default: 0.4s
-.educational(.hintAvailable(duration: 0.5))         // Default: 0.5s
-.educational(.progressCheckpoint(duration: 0.6))    // Default: 0.6s
-.educational(.encouragementTap(duration: 0.3))      // Default: 0.3s
-.educational(.skillUnlocked(duration: 0.8))         // Default: 0.8s
-.educational(.lessonComplete(duration: 1.0))        // Default: 1.0s
-.educational(.practiceReminder(duration: 0.5))      // Default: 0.5s
-.educational(.knowledgeGained(duration: 0.7))       // Default: 0.7s
-.educational(.feedbackPositive(duration: 0.4))      // Default: 0.4s
-
-// Gamification
-.educational(.xpGainSmall(duration: 0.3))           // Default: 0.3s
-.educational(.xpGainLarge(duration: 1.0))           // Default: 1.0s
-.educational(.bonusPoints(duration: 0.7))           // Default: 0.7s
-.educational(.powerUpCollected(duration: 0.5))      // Default: 0.5s
-.educational(.lifeGained(duration: 0.6))            // Default: 0.6s
-.educational(.challengeAccepted(duration: 0.5))     // Default: 0.5s
-.educational(.timerTick(duration: 0.1))             // Default: 0.1s
-.educational(.rewardUnlock(duration: 1.0))          // Default: 1.0s
-.educational(.progressBarFill(duration: 0.8))       // Default: 0.8s
-.educational(.comboMultiplier(count: 3, duration: 0.6))  // Default: count=3, duration=0.6s
+.achievementUnlocked(duration: 1.2)
+.levelUp(duration: 1.5)
+.starRating(count: 3, duration: 0.2)
+.badgeEarned(duration: 0.8)
+.streakMilestone(duration: 1.0)
+.perfectScore(duration: 1.0)
+.rankPromotion(duration: 1.5)
+.dailyGoalComplete(duration: 1.0)
+.trophyUnlock(duration: 1.8)
+.questComplete(duration: 1.5)
+.highScore(duration: 1.5)
+.masteryAchieved(duration: 2.0)
+.correctAnswerBasic(duration: 0.2)
+.correctAnswerSimple(duration: 0.25)
+.correctAnswerStreak(streakCount: 3, duration: 0.5)
+.correctAnswerPerfect(duration: 0.8)
+.perfectLessonComplete(duration: 2.0)
+.badgeUnlock(duration: 0.8)
+.skillMastery(duration: 1.5)
+.leaguePromotion(duration: 1.5)
+.celebrationBurst(duration: 1.0)
+.ascendingSuccess(duration: 0.6)
 ```
 
-### UI Interaction Haptics (35 options)
-Enhance user interface interactions:
+### Learning Feedback
 
 ```swift
-// Social Media
-.uiInteraction(.doubleTapLike(duration: 0.2))       // Default: 0.2s
-.uiInteraction(.messageSent(duration: 0.25))        // Default: 0.25s
-.uiInteraction(.notificationPop(duration: 0.3))     // Default: 0.3s
-.uiInteraction(.typingIndicator(duration: 0.1))     // Default: 0.1s
-.uiInteraction(.commentPosted(duration: 0.2))       // Default: 0.2s
-
-// Navigation
-.uiInteraction(.pullToRefresh(duration: 0.5))       // Default: 0.5s
-.uiInteraction(.swipeAction(duration: 0.25, actionType: "default"))  // Default: 0.25s, actionType="default"
-.uiInteraction(.toggleSwitch(duration: 0.2))        // Default: 0.2s
-.uiInteraction(.pickerDetent(duration: 0.1))        // Default: 0.1s
-.uiInteraction(.longPressActivation(duration: 0.4)) // Default: 0.4s
-.uiInteraction(.tabSelection(duration: 0.15))       // Default: 0.15s
-.uiInteraction(.navigationPush(duration: 0.25))     // Default: 0.25s
-.uiInteraction(.navigationPop(duration: 0.2))       // Default: 0.2s
-.uiInteraction(.modalPresent(duration: 0.3))        // Default: 0.3s
-.uiInteraction(.modalDismiss(duration: 0.25))       // Default: 0.25s
-
-// Input & Controls
-.uiInteraction(.keyboardTap(duration: 0.05))        // Default: 0.05s
-.uiInteraction(.sliderStep(duration: 0.05))         // Default: 0.05s
-.uiInteraction(.selectionTick(duration: 0.1))       // Default: 0.1s
-.uiInteraction(.segmentChange(duration: 0.15))      // Default: 0.15s
-.uiInteraction(.zoomBoundary(duration: 0.2))        // Default: 0.2s
-.uiInteraction(.dragAndDrop(duration: 0.25, phase: "start"))  // Default: 0.25s, phase="start"
-.uiInteraction(.formSubmit(duration: 0.3))          // Default: 0.3s
-.uiInteraction(.inputError(duration: 0.4))          // Default: 0.4s
-.uiInteraction(.loadingComplete(duration: 0.5))     // Default: 0.5s
-.uiInteraction(.appIconTap(duration: 0.15))         // Default: 0.15s
-
-// Additional Interactions
-.uiInteraction(.scrollBounce(duration: 0.3))        // Default: 0.3s
-.uiInteraction(.pageFlip(duration: 0.3))            // Default: 0.3s
-.uiInteraction(.photoCapture(duration: 0.2))        // Default: 0.2s
-.uiInteraction(.shareAction(duration: 0.3))         // Default: 0.3s
-.uiInteraction(.downloadComplete(duration: 0.5))    // Default: 0.5s
-.uiInteraction(.refreshData(duration: 0.4))         // Default: 0.4s
-.uiInteraction(.gestureRecognized(duration: 0.2))   // Default: 0.2s
-.uiInteraction(.pageTurn(duration: 0.3))            // Default: 0.3s
-.uiInteraction(.customPop(duration: 0.15))          // Default: 0.15s
-.uiInteraction(.pop(duration: 0.2))                 // Default: 0.2s (Apple-inspired)
+.correctAnswer(duration: 0.3)
+.incorrectGentle(duration: 0.4)
+.hintAvailable(duration: 0.5)
+.progressCheckpoint(duration: 0.6)
+.encouragementTap(duration: 0.3)
+.skillUnlocked(duration: 0.8)
+.lessonComplete(duration: 1.0)
+.practiceReminder(duration: 0.5)
+.knowledgeGained(duration: 0.7)
+.feedbackPositive(duration: 0.4)
+.wrongAnswerGentle(duration: 0.5)
+.wrongAnswerStandard(duration: 0.3)
+.nearMissAnswer(duration: 0.35)
+.grammarError(duration: 0.25)
+.hintActivation(duration: 0.3)
+.hintReveal(duration: 0.3)
+.timeCriticalWarning(duration: 0.8)
+.partialCredit(duration: 0.4)
+.tryAgainEncouragement(duration: 0.3)
+.learningProgress(duration: 0.5)
+.educationalFocusReminder(duration: 0.3)
+.flashcardFlip(duration: 0.2)
+.quizStart(duration: 1.0)
 ```
 
-### Special Effect Haptics (10 options)
-Creative and atmospheric effects:
+### Gamification
 
 ```swift
-.specialEffect(.magicSparkle(duration: 1.0))        // Default: 1.0s
-.specialEffect(.waterDrop(duration: 0.6))           // Default: 0.6s
-.specialEffect(.earthquake(duration: 2.0))          // Default: 2.0s
-.specialEffect(.laserBeam(duration: 0.8))           // Default: 0.8s
-.specialEffect(.typewriter(duration: 0.05))         // Default: 0.05s
-.specialEffect(.rubberBand(duration: 0.5))          // Default: 0.5s
-.specialEffect(.electricSpark(duration: 0.3))       // Default: 0.3s
-.specialEffect(.boing(duration: 0.25))              // Default: 0.25s (Apple-inspired)
-.specialEffect(.inflate(duration: 1.7))             // Default: 1.7s (Apple-inspired)
-.specialEffect(.oscillate(duration: 3.0))           // Default: 3.0s (Apple-inspired)
+.xpGainSmall(duration: 0.3)
+.xpGainLarge(duration: 1.0)
+.xpGainBonus(duration: 0.5)
+.xpGainDynamic(xpAmount: 100, duration: 0.3)
+.bonusPoints(duration: 0.7)
+.powerUpCollected(duration: 0.5)
+.lifeGained(duration: 0.6)
+.challengeAccepted(duration: 0.5)
+.timerTick(duration: 0.1)
+.rewardUnlock(duration: 1.0)
+.progressBarFill(duration: 0.8)
+.progressBarFilling(startPercent: 0.0, endPercent: 1.0, duration: 1.0)
+.progress25(duration: 0.2)
+.progress50(duration: 0.3)
+.progress75(duration: 0.4)
+.dailyGoalCheckpoint(checkpointNumber: 1, duration: 0.5)
+.leagueAdvancement(duration: 1.2)
+.crownGemCollection(duration: 0.6)
+.powerUpActivation(powerUpType: "speed", duration: 0.5)
+.challengeCompletion(isPerfect: true, duration: 1.0)
+.lessonPathProgress(nodeType: "standard", duration: 0.4)
+.socialFeatureNotification(notificationType: "default", duration: 0.6)
+.comboMultiplier(count: 3, duration: 0.6)
+.streakRiskWarning(duration: 0.6)
+.streakLost(duration: 0.5)
+.streakBuilding(streakCount: 5, duration: 0.5)
+.streakMilestone5(duration: 0.6)
+.streakMilestone7Days(duration: 1.0)
+.streakMilestone10(duration: 0.8)
+.streakMilestone25(duration: 1.2)
+.streakMilestone30Days(duration: 1.5)
+.streakMilestone100Days(duration: 2.0)
 ```
 
-### Wellness Haptics (6 options)
-Designed for meditation, health, and wellness apps:
+</details>
+
+## UI Interaction Haptics (41)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Enhance user interface interactions with subtle feedback.
+
+### Social Media
 
 ```swift
-.wellness(.breathingGuide(duration: 4.0))           // Default: 4.0s
-.wellness(.calmPulse(duration: 2.0))                // Default: 2.0s
-.wellness(.meditationBell(duration: 1.5))           // Default: 1.5s
-.wellness(.relaxationWave(duration: 3.0))           // Default: 3.0s
-.wellness(.zenNotification(duration: 1.2))          // Default: 1.2s
-.wellness(.heartBeats(count: 3, durationPerBeat: 0.255))  // Default: count=3, durationPerBeat=0.255s (Apple-inspired)
+.doubleTapLike(duration: 0.2)
+.messageSent(duration: 0.25)
+.notificationPop(duration: 0.3)
+.typingIndicator(duration: 0.1)
+.commentPosted(duration: 0.2)
 ```
 
-### Productivity Haptics (4 options)
-For work and productivity applications:
+### Navigation
 
 ```swift
-.productivity(.timerComplete(duration: 1.0))        // Default: 1.0s
-.productivity(.taskCheck(duration: 0.3))            // Default: 0.3s
-.productivity(.focusStart(duration: 0.8))           // Default: 0.8s
-.productivity(.breakReminder(duration: 1.2))        // Default: 1.2s
+.pullToRefresh(duration: 0.4)
+.swipeAction(duration: 0.25, actionType: "default")
+.toggleSwitch(duration: 0.2)
+.pickerDetent(duration: 0.1)
+.longPressActivation(duration: 0.4)
+.tabSelection(duration: 0.15)
+.navigationPush(duration: 0.25)
+.navigationPop(duration: 0.2)
+.modalPresent(duration: 0.3)
+.modalDismiss(duration: 0.25)
 ```
 
-### Finance Haptics (4 options)
-For payment and financial applications:
+### Input & Controls
 
 ```swift
-.finance(.paymentSuccess(duration: 0.6))            // Default: 0.6s
-.finance(.paymentProcessing(duration: 1.5))         // Default: 1.5s
-.finance(.transactionAlert(duration: 0.5))          // Default: 0.5s
-.finance(.receiptSaved(duration: 0.4))              // Default: 0.4s
+.keyboardTap(duration: 0.05)
+.sliderStep(duration: 0.05)
+.sliderTick(duration: 0.05)
+.buttonPress(duration: 0.03)
+.selectionTick(duration: 0.1)
+.segmentChange(duration: 0.15)
+.zoomBoundary(duration: 0.2)
+.dragAndDrop(duration: 0.25, phase: "start")
+.formSubmit(duration: 0.3)
+.inputError(duration: 0.4)
+.loadingComplete(duration: 0.5)
+.appIconTap(duration: 0.15)
 ```
 
-### Emotional Haptics (5 options)
-Convey emotions through haptic feedback:
+### Additional
 
 ```swift
-.emotional(.excitementBuild(duration: 1.5))         // Default: 1.5s
-.emotional(.disappointment(duration: 1.0))          // Default: 1.0s
-.emotional(.surprise(duration: 0.5))                // Default: 0.5s
-.emotional(.joy(duration: 1.2))                     // Default: 1.2s
-.emotional(.anticipation(duration: 2.0))            // Default: 2.0s
+.scrollBounce(duration: 0.3)
+.pageFlip(duration: 0.3)
+.photoCapture(duration: 0.2)
+.shareAction(duration: 0.3)
+.downloadComplete(duration: 0.5)
+.refreshData(duration: 0.4)
+.gestureRecognized(duration: 0.2)
+.pageTurn(duration: 0.3)
+.bookPageTurn(duration: 0.25)
+.softTick(duration: 0.3)
+.customPop(duration: 0.15)
+.contextualMenu(duration: 0.25)
+.sliderValueChange(duration: 0.06)
+.pop(duration: 0.2)
 ```
 
-### Intense Gamification Haptics (20 options)
-High-intensity effects for immersive gaming:
+</details>
+
+## Special Effect Haptics (12)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Creative and atmospheric effects.
 
 ```swift
-// Elemental Powers
-.intenseGamification(.fireBurst(duration: 1.0))     // Default: 1.0s
-.intenseGamification(.iceShard(duration: 1.5))      // Default: 1.5s
-.intenseGamification(.earthquakeRumble(duration: 2.5))  // Default: 2.5s
-.intenseGamification(.windTornado(duration: 1.8))   // Default: 1.8s
-
-// Space & Sci-Fi
-.intenseGamification(.plasmaCharge(duration: 1.5))  // Default: 1.5s
-.intenseGamification(.gravityWell(duration: 2.0))   // Default: 2.0s
-.intenseGamification(.photonBlast(duration: 0.8))   // Default: 0.8s
-.intenseGamification(.quantumShift(duration: 0.6))  // Default: 0.6s
-.intenseGamification(.rocketLaunch(duration: 3.0))  // Default: 3.0s
-.intenseGamification(.warpDrive(duration: 2.0))     // Default: 2.0s
-.intenseGamification(.laserCannon(duration: 0.5))   // Default: 0.5s
-.intenseGamification(.alienTeleport(duration: 1.0)) // Default: 1.0s
-.intenseGamification(.spaceExplosion(duration: 2.5)) // Default: 2.5s
-
-// Epic Abilities
-.intenseGamification(.ultimatePower(duration: 3.0)) // Default: 3.0s
-.intenseGamification(.dragonRoar(duration: 2.0))    // Default: 2.0s
-.intenseGamification(.titanSmash(duration: 1.5))    // Default: 1.5s
-.intenseGamification(.dimensionalRift(duration: 2.5)) // Default: 2.5s
-.intenseGamification(.volcanicEruption(duration: 3.5)) // Default: 3.5s
-
-// Power-ups & Boosts
-.intenseGamification(.megaBoost(duration: 1.2))     // Default: 1.2s
-.intenseGamification(.starPower(duration: 2.0))     // Default: 2.0s
-.intenseGamification(.berserkerRage(duration: 2.5)) // Default: 2.5s
-.intenseGamification(.divineShield(duration: 1.5))  // Default: 1.5s
+.magicSparkle(duration: 1.2)
+.waterDrop(duration: 0.6)
+.specialEarthquake(duration: 2.5)
+.laserBeam(duration: 0.8)
+.typewriter(duration: 0.04)
+.heartbeat(duration: 1.5)
+.electricSpark(duration: 0.3)
+.rubberBand(duration: 0.4)
+.buildUp(duration: 2.0)
+.boing(duration: 0.25)
+.inflate(duration: 1.7)
+.oscillate(duration: 3.0)
 ```
 
-### Custom Haptics (2 types)
-For advanced custom patterns using CoreHaptics:
+</details>
+
+## Wellness Haptics (8)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Designed for meditation, health, and wellness apps.
+
+```swift
+.breathingGuide(duration: 4.0)
+.calmPulse(duration: 2.0)
+.meditationBell(duration: 1.5)
+.relaxationWave(duration: 3.0)
+.zenNotification(duration: 1.2)
+.timeWarning30s(duration: 0.5)
+.timeWarning10s(duration: 0.8)
+.heartBeats(count: 3, durationPerBeat: 0.255)
+```
+
+</details>
+
+## Productivity Haptics (5)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+For work and productivity applications.
+
+```swift
+.timerComplete(duration: 1.5)
+.taskCheck(duration: 0.2)
+.focusStart(duration: 0.8)
+.breakReminder(duration: 1.2)
+.productivityFocusReminder(duration: 0.25)
+```
+
+</details>
+
+## Finance Haptics (4)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+For payment and financial applications.
+
+```swift
+.paymentSuccess(duration: 0.1)
+.paymentProcessing(duration: 2.0)
+.transactionAlert(duration: 0.5)
+.receiptSaved(duration: 0.4)
+```
+
+</details>
+
+## Emotional Haptics (5)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Convey emotions through haptic feedback.
+
+```swift
+.excitementBuild(duration: 2.0)
+.disappointment(duration: 0.8)
+.surprise(duration: 0.5)
+.joy(duration: 1.2)
+.anticipation(duration: 2.0)
+```
+
+</details>
+
+## Intense Gamification Haptics (33)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+High-intensity effects for immersive gaming experiences.
+
+### Elemental Powers
+
+```swift
+.fireBurst(duration: 1.0)
+.iceShard(duration: 1.5)
+.earthquakeRumble(duration: 2.5)
+.windTornado(duration: 1.8)
+.thunderStorm(duration: 2.5)
+.meteorImpact(duration: 3.0)
+.intenseEarthquake(duration: 2.5)
+.intenseTornado(duration: 1.8)
+```
+
+### Space & Sci-Fi
+
+```swift
+.plasmaCharge(duration: 1.5)
+.gravityWell(duration: 2.0)
+.photonBlast(duration: 0.8)
+.quantumShift(duration: 0.6)
+.rocketLaunch(duration: 3.0)
+.warpDrive(duration: 2.0)
+.laserCannon(duration: 0.5)
+.alienTeleport(duration: 1.0)
+.spaceExplosion(duration: 2.5)
+```
+
+### Epic Abilities
+
+```swift
+.ultimatePower(duration: 3.0)
+.dragonRoar(duration: 2.0)
+.titanSmash(duration: 1.5)
+.dimensionalRift(duration: 2.5)
+.volcanicEruption(duration: 3.5)
+.titanStomp(duration: 1.5)
+.phoenixRebirth(duration: 2.0)
+.divineIntervention(duration: 2.5)
+```
+
+### Power-ups & Boosts
+
+```swift
+.megaBoost(duration: 1.5)
+.starPower(duration: 2.0)
+.berserkerRage(duration: 2.0)
+.divineShield(duration: 1.5)
+.invincibilityActivation(duration: 2.0)
+.timeFreeze(duration: 2.5)
+.ultraCombo(duration: 3.0)
+.nuclearCharge(duration: 2.5)
+```
+
+</details>
+
+## Ratings & Feedback Haptics (4)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+For rating systems and social feedback.
+
+```swift
+.starRating1(duration: 0.1)
+.starRating3(duration: 0.3)
+.starRating5(duration: 0.8)
+.socialNotification(notificationType: "like", duration: 0.4)
+```
+
+</details>
+
+## Tools & Writing Haptics (2)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+For drawing and text input experiences.
+
+```swift
+.pencilWrite(duration: 0.05)
+.eraserUse(duration: 0.2)
+```
+
+</details>
+
+## Custom Haptics (2)
+
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+For advanced custom patterns using CoreHaptics directly.
 
 ```swift
 // Custom with dynamic parameters
-.custom(
-    events: [CHHapticEvent], 
-    parameters: [CHHapticDynamicParameter]
-)
+.custom(events: [CHHapticEvent], parameters: [CHHapticDynamicParameter])
 
-// Custom with parameter curves  
-.customCurve(
-    events: [CHHapticEvent], 
-    parameterCurves: [CHHapticParameterCurve]
-)
+// Custom with parameter curves
+.customCurve(events: [CHHapticEvent], parameterCurves: [CHHapticParameterCurve])
 ```
+
+</details>
 
 ## Logging Integration
 
-SwiftfulHaptics supports optional logging for analytics:
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+SwiftfulHaptics supports optional logging for analytics.
 
 ```swift
 // Implement the HapticLogger protocol
 class MyAnalytics: HapticLogger {
     func trackEvent(event: HapticLogEvent) {
-        // Send haptic events to your analytics service
-        print("Haptic Event: \(event.eventName)")
-        if let params = event.parameters {
-            print("Parameters: \(params)")
-        }
+        print("Haptic: \(event.eventName)")
     }
-    
+
     func addUserProperties(dict: [String: Any], isHighPriority: Bool) {
         // Add user properties for analytics
     }
 }
 
-// Initialize HapticManager with logger
-let analytics = MyAnalytics()
-let hapticManager = HapticManager(logger: analytics)
+// Initialize with logger
+let hapticManager = HapticManager(logger: MyAnalytics())
 ```
+
+Or use [SwiftfulLogging](https://github.com/SwiftfulThinking/SwiftfulLogging) directly.
+
+```swift
+let logManager = LogManager(services: [
+    ConsoleService(printParameters: true),
+    FirebaseCrashlyticsService(),
+    MixpanelService()
+])
+
+let hapticManager = HapticManager(logger: logManager)
+```
+
+</details>
 
 ## Performance Tips
 
-1. **Prepare frequently-used haptics** during app startup or scene loading
-2. **Use tearDown()** during memory warnings to free unused engines  
-3. **Basic haptics** (.basic) have the lowest latency and memory usage
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+1. **Prepare frequently-used haptics** during screen appear
+2. **Use tearDown()** during screen disappear or memory warnings
+3. **Basic haptics** (`.light`, `.medium`, `.success`, etc.) have the lowest latency
 4. **Custom haptics** require CoreHaptics engine initialization (higher latency on first use)
-5. **Batch operations** can improve performance when dealing with multiple haptics
+5. **Batch operations** can prepare or play multiple haptics at once
+
+</details>
 
 ## Platform Support
 
-- **iOS 13.0+** - Full functionality including CoreHaptics
-- **macOS 12.0+** - Limited to basic haptics (no CoreHaptics support)
-- **tvOS 13.0+** - Limited haptic support
+- **iOS 13.0+**
 
 ## Contribute
 
-Open a PR to add new haptic patterns! Follow the existing pattern structure and add your custom haptic to the appropriate category.
+<details>
+<summary> Details (Click to expand) </summary>
+<br>
+
+Open a PR to add new haptic patterns! Follow the existing pattern structure in the `Models/Patterns/` directory and add your custom haptic to the appropriate category.
+
+</details>
 
 ## License
 
