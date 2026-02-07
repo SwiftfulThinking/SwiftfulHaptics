@@ -639,7 +639,7 @@ extension HapticOption {
         case .bookPageTurn(let duration):
             return try CHHapticPattern(events: UIInteractionHapticPatterns.bookPageTurn(duration: duration), parameters: [])
         case .softTick(let duration):
-            return try CHHapticPattern(events: EducationalHapticPatterns.softTick(duration: duration), parameters: [])
+            return try CHHapticPattern(events: UIInteractionHapticPatterns.softTick(duration: duration), parameters: [])
         case .customPop(let duration):
             return try CHHapticPattern(events: UIInteractionHapticPatterns.customPopEvents(duration: duration),
                                       parameterCurves: UIInteractionHapticPatterns.customPopCurves(duration: duration))

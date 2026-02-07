@@ -325,35 +325,47 @@ public final actor HapticManager {
     
     private func configureEngineCallbacks(engine: CHHapticEngine) {
         // The stopped handler alerts you of engine stoppage due to external causes.
-        engine.stoppedHandler = { [self] reason in
-            /*
-             CHHapticEngineStoppedReasonAudioSessionInterrupt    = 1,
-             CHHapticEngineStoppedReasonApplicationSuspended        = 2,
-             CHHapticEngineStoppedReasonIdleTimeout                = 3,
-             CHHapticEngineStoppedReasonNotifyWhenFinished        = 4,
-             CHHapticEngineStoppedReasonEngineDestroyed          = 5,
-             CHHapticEngineStoppedReasonGameControllerDisconnect = 6,
-             CHHapticEngineStoppedReasonSystemError                = -1
-             */
-            trackEvent(event: .customEngineStopped(reason: reason.rawValue))
-            customEngineIsRunning = false
+        engine.stoppedHandler = { [weak self] reason in
+            Task {
+                await self?.handleEngineStopped(reason: reason)
+            }
         }
- 
+
         // The reset handler provides an opportunity for your app to restart the engine in case of failure.
-        engine.resetHandler = { [self] in
-            // Try restarting the engine.
-            trackEvent(event: .customEngineRestart)
-            do {
-                // Once the haptic starts playing, you can’t stop it, and pressing other buttons layers those haptics on top of any existing haptic patterns in the middle of playback.
-                try engine.start()
-                customEngineIsRunning = true
-            } catch {
-                trackEvent(event: .customEngineRestartFail(error: error))
-                customEngineIsRunning = false
+        engine.resetHandler = { [weak self] in
+            Task {
+                await self?.handleEngineReset(engine: engine)
             }
         }
     }
     
+    private func handleEngineStopped(reason: CHHapticEngine.StoppedReason) {
+        /*
+         CHHapticEngineStoppedReasonAudioSessionInterrupt    = 1,
+         CHHapticEngineStoppedReasonApplicationSuspended        = 2,
+         CHHapticEngineStoppedReasonIdleTimeout                = 3,
+         CHHapticEngineStoppedReasonNotifyWhenFinished        = 4,
+         CHHapticEngineStoppedReasonEngineDestroyed          = 5,
+         CHHapticEngineStoppedReasonGameControllerDisconnect = 6,
+         CHHapticEngineStoppedReasonSystemError                = -1
+         */
+        trackEvent(event: .customEngineStopped(reason: reason.rawValue))
+        customEngineIsRunning = false
+    }
+
+    private func handleEngineReset(engine: CHHapticEngine) {
+        // Try restarting the engine.
+        trackEvent(event: .customEngineRestart)
+        do {
+            // Once the haptic starts playing, you can't stop it, and pressing other buttons layers those haptics on top of any existing haptic patterns in the middle of playback.
+            try engine.start()
+            customEngineIsRunning = true
+        } catch {
+            trackEvent(event: .customEngineRestartFail(error: error))
+            customEngineIsRunning = false
+        }
+    }
+
     private func trackEvent(event: Event) {
         Task {
             await logger?.trackEvent(event: event)
