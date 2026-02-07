@@ -628,7 +628,7 @@ let hapticManager = HapticManager(logger: logManager)
 
 ## Claude Code
 
-This package includes a `.claude/consumer-rule.md` with usage guidelines, haptic selection advice, and integration patterns for projects using [Claude Code](https://claude.ai/claude-code).
+This package includes a `.claude/swiftful-haptics-rules.md` with usage guidelines, haptic selection advice, and integration patterns for projects using [Claude Code](https://claude.ai/claude-code).
 
 ## Platform Support
 
